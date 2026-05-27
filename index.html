@@ -1,70 +1,73 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TLC-Bot • Cloud Console</title>
+    <title>TLC Console • Cloud Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: radial-gradient(circle at 100% 100%, #151829 0%, #07080d 100%);
-            background-attachment: fixed;
+            background-color: #000000;
+            color: #ffffff;
         }
-        .glass {
-            background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+
+        .border-zinc-custom {
+            border-color: #1c1c1e;
         }
-        .glass-hover:hover {
-            border-color: rgba(139, 92, 246, 0.25);
-            background: rgba(255, 255, 255, 0.04);
-            transform: translateY(-2px);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+        .bg-zinc-dark {
+            background-color: #09090b;
         }
-        .discord-bg { background-color: #313338; }
-        .discord-embed-border { width: 4px; }
+
+        .bg-zinc-card {
+            background-color: #141416;
+        }
+
         .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
+            width: 4px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.01);
+            background: #000000;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
+            background: #27272a;
+            border-radius: 9999px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #ffffff;
         }
     </style>
 </head>
-<body class="text-slate-100 min-h-screen flex flex-col selection:bg-violet-500/30 selection:text-violet-200">
+<body class="min-h-screen flex flex-col selection:bg-white selection:text-black">
 
-    <!-- DISCORD LOGIN GATEWAY -->
-    <div id="login-portal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-xl transition-all duration-500">
-        <div class="glass max-w-md w-full p-8 rounded-[2.5rem] shadow-2xl space-y-8 text-center relative overflow-hidden">
-            <div class="absolute -top-24 -left-24 w-48 h-48 bg-violet-600/20 rounded-full blur-3xl"></div>
-            <div class="absolute -top-24 -right-24 w-48 h-48 bg-indigo-600/20 rounded-full blur-3xl"></div>
-
-            <div class="space-y-3 relative">
-                <div class="w-16 h-16 rounded-3xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/20 mx-auto">
-                    <i data-lucide="shield-check" class="w-8 h-8 text-white"></i>
+    <!-- MINIMALIST AUTHENTICATION GATEWAY -->
+    <div id="login-portal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/98 transition-all duration-500">
+        <div class="bg-zinc-dark max-w-sm w-full p-8 rounded-2xl border border-zinc-custom shadow-[0_0_50px_rgba(255,255,255,0.02)] space-y-8 text-center relative overflow-hidden">
+            <div class="space-y-4">
+                <div class="w-12 h-12 rounded-xl bg-white text-black flex items-center justify-center mx-auto shadow-md">
+                    <i data-lucide="shield" class="w-5 h-5"></i>
                 </div>
-                <h1 class="text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">TLC Cloud Console</h1>
-                <p id="login-description" class="text-slate-400 text-sm max-w-xs mx-auto">Authorise with Discord to verify administrative ownership and safely pull config rules.</p>
+                <div class="space-y-2">
+                    <h1 class="text-xl font-bold tracking-tight text-white uppercase">TLC Cloud Console</h1>
+                    <p id="login-description" class="text-zinc-400 text-xs max-w-xs mx-auto">Authorize server control privileges to fetch and modify custom operational rules.</p>
+                </div>
             </div>
 
-            <div class="space-y-4 relative z-10">
-                <button id="discord-auth-btn" onclick="redirectToDiscord()" class="w-full flex items-center justify-center gap-3 bg-[#5865F2] hover:bg-[#4752C4] py-3.5 px-6 rounded-2xl font-bold text-sm shadow-lg shadow-[#5865F2]/20 transition-all duration-300 transform active:scale-[0.98]">
-                    <svg class="w-5 h-5 fill-current" viewBox="0 0 127.14 96.36">
+            <div class="space-y-3">
+                <button id="discord-auth-btn" onclick="redirectToDiscord()" class="w-full flex items-center justify-center gap-2.5 bg-white hover:bg-zinc-200 text-black py-3 px-5 rounded-xl font-bold text-xs tracking-wider uppercase transition-all duration-200">
+                    <svg class="w-4 h-4 fill-current" viewBox="0 0 127.14 96.36">
                         <path d="M107.7,8.07A105.15,105.15,0,0,0,77.26,0a77.19,77.19,0,0,0-3.3,6.83A96.67,96.67,0,0,0,53.22,6.83,77.19,77.19,0,0,0,49.88,0,105.15,105.15,0,0,0,19.44,8.07C3.66,31.58-1.86,54.65,1,77.53A105.73,105.73,0,0,0,32,96.36a77.7,77.7,0,0,0,6.63-10.85,68.43,68.43,0,0,1-10.5-5c.87-.64,1.71-1.32,2.51-2a75.52,75.52,0,0,0,73,0c.8.71,1.64,1.39,2.51,2a68.43,68.43,0,0,1-10.5,5,77.7,77.7,0,0,0,6.63,10.85,105.73,105.73,0,0,0,31-18.83C129.81,50.12,123.63,27.35,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53S36.18,40.36,42.45,40.36,53.83,46,53.83,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.24,60,73.24,53S78.41,40.36,84.69,40.36,96.07,46,96.07,53,91,65.69,84.69,65.69Z"/>
                     </svg>
-                    <span id="auth-button-text">Login with Discord</span>
+                    Authorise with Discord
                 </button>
-                <div id="setup-fallback-box" class="pt-4 border-t border-white/5 space-y-3">
-                    <p class="text-xs text-slate-500">Running Locally / No Client Secret?</p>
-                    <button onclick="bypassWithDemoUser()" class="w-full py-2.5 rounded-xl border border-white/10 text-xs font-semibold hover:bg-white/5 transition">
+                
+                <div class="pt-4 border-t border-zinc-custom">
+                    <button onclick="bypassWithDemoUser()" class="w-full py-2.5 rounded-xl border border-zinc-custom text-zinc-400 text-xs font-semibold hover:text-white hover:bg-zinc-dark/50 transition">
                         Bypass to Dashboard
                     </button>
                 </div>
@@ -72,237 +75,186 @@
         </div>
     </div>
 
-    <!-- MAIN DASHBOARD LAYOUT -->
+    <!-- MAIN DASHBOARD CONTENT -->
     <div id="app-content" class="hidden flex-1 flex flex-col">
-        <!-- GLOBAL APP NAV BAR -->
-        <header class="border-b border-white/5 bg-slate-950/40 backdrop-blur-md sticky top-0 z-40 px-6 py-4">
-            <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-4">
+        
+        <!-- HEADER MODULE -->
+        <header class="border-b border-zinc-custom bg-black sticky top-0 z-40 px-6 py-4">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
                 
-                <!-- Title & Brand -->
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-violet-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/20">
-                        <i data-lucide="shield" class="w-5 h-5 text-white"></i>
+                    <div class="w-9 h-9 rounded-lg bg-white text-black flex items-center justify-center shadow-md">
+                        <i data-lucide="shield" class="w-4 h-4"></i>
                     </div>
                     <div>
-                        <h1 class="font-bold text-lg tracking-tight">TLC-Bot Cloud</h1>
-                        <p class="text-[10px] text-violet-400 font-bold uppercase tracking-wider">Gist Configuration Center</p>
+                        <h1 class="font-bold text-xs tracking-wider uppercase">TLC Cloud Console</h1>
+                        <p class="text-[9px] text-zinc-400 font-medium">Secured Administration Portal</p>
                     </div>
                 </div>
 
-                <!-- PAGE NAVIGATION SWITCHER -->
-                <nav class="flex items-center gap-1.5 bg-slate-900/60 border border-white/5 p-1 rounded-2xl">
-                    <button onclick="switchPage('home')" id="nav-home" class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white transition">
-                        <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Main Hub
+                <!-- MINIMALIST NAVIGATION TABS -->
+                <nav class="flex items-center bg-zinc-dark border border-zinc-custom p-1 rounded-xl">
+                    <button onclick="switchPage('tickets')" id="nav-tickets" class="flex items-center gap-2 px-6 py-2 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition">
+                        <i data-lucide="ticket" class="w-3.5 h-3.5"></i> Tickets
                     </button>
-                    <button onclick="switchPage('tickets')" id="nav-tickets" class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white transition">
-                        <i data-lucide="ticket" class="w-4 h-4"></i> Tickets Manager
-                    </button>
-                    <button onclick="switchPage('status')" id="nav-status" class="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white transition">
-                        <i data-lucide="activity" class="w-4 h-4"></i> Bot Status
+                    <button onclick="switchPage('status')" id="nav-status" class="flex items-center gap-2 px-6 py-2 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition">
+                        <i data-lucide="activity" class="w-3.5 h-3.5"></i> Status
                     </button>
                 </nav>
 
-                <!-- Guild Swapper & Status Indicators -->
-                <div class="flex items-center gap-3">
-                    <button onclick="openApiSettings()" class="p-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-violet-500/50 transition">
-                        <i data-lucide="settings" class="w-4 h-4 text-violet-400"></i>
+                <!-- Profile and system lock triggers -->
+                <div class="flex items-center gap-4">
+                    <button onclick="openApiSettings()" class="p-2 rounded-lg border border-zinc-custom hover:bg-zinc-dark transition">
+                        <i data-lucide="sliders" class="w-3.5 h-3.5 text-zinc-400"></i>
                     </button>
 
-                    <div id="sync-status" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        Gist Connected
+                    <div id="sync-status" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-dark border border-zinc-custom text-zinc-400 text-xs font-semibold">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Secure Pipeline
                     </div>
 
-                    <div class="flex items-center gap-3 bg-white/5 p-1.5 pr-4 rounded-xl border border-white/5">
-                        <img id="user-avatar" src="https://cdn.discordapp.com/embed/avatars/0.png" class="w-8 h-8 rounded-lg bg-slate-800" alt="">
+                    <div class="flex items-center gap-3 bg-zinc-dark p-1.5 pr-4 rounded-xl border border-zinc-custom">
+                        <img id="user-avatar" src="https://cdn.discordapp.com/embed/avatars/0.png" class="w-6 h-6 rounded" alt="">
                         <div class="text-left">
-                            <p id="user-name" class="text-xs font-bold text-slate-200">User</p>
-                            <p onclick="logout()" class="text-[10px] text-red-400 hover:text-red-300 font-medium cursor-pointer transition">Logout</p>
+                            <p id="user-name" class="text-[10px] font-bold text-white uppercase tracking-wider">User</p>
+                            <p onclick="logout()" class="text-[9px] text-zinc-400 hover:text-white cursor-pointer transition">Logout</p>
                         </div>
                     </div>
                 </div>
             </div>
         </header>
 
-        <!-- PAGE 1: MAIN HUB -->
-        <main id="page-home" class="max-w-7xl mx-auto px-6 py-8 w-full space-y-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Welcome greeting -->
-                <div class="glass md:col-span-2 p-8 rounded-3xl relative overflow-hidden flex flex-col justify-center min-h-[220px]">
-                    <div class="absolute -right-12 -bottom-12 w-48 h-48 bg-violet-600/10 rounded-full blur-3xl"></div>
-                    <h2 class="text-3xl font-extrabold text-white tracking-tight">Welcome back, <span class="text-violet-400" id="welcome-username">user</span>!</h2>
-                    <p class="text-slate-400 text-sm mt-2 max-w-lg leading-relaxed">Customize embed systems, change status activities, and track mod alerts live from your static GitHub Pages interface linked directly to your GitHub Gist configuration file.</p>
-                </div>
-
-                <!-- Server selector card -->
-                <div class="glass p-6 rounded-3xl flex flex-col justify-between">
-                    <div>
-                        <h3 class="font-bold text-sm text-slate-300 mb-2">Guild & Status Overview</h3>
-                        <p class="text-xs text-slate-400">View server status. Your dashboard is actively linked to the following Gist:</p>
-                    </div>
-                    <div class="mt-4">
-                        <div class="w-full flex items-center justify-between bg-white/5 border border-white/10 p-3 rounded-xl text-xs">
-                            <span class="text-slate-400">Gist ID:</span>
-                            <span id="display-gist-id" class="font-mono text-violet-400">Loading...</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Configuration Feature Cards Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div onclick="switchPage('tickets')" class="glass p-6 rounded-3xl glass-hover cursor-pointer space-y-4">
-                    <div class="w-12 h-12 rounded-2xl bg-violet-600/10 flex items-center justify-center text-violet-400"><i data-lucide="ticket" class="w-6 h-6"></i></div>
-                    <div class="space-y-1">
-                        <h3 class="font-bold text-base text-white">Interactive Tickets</h3>
-                        <p class="text-xs text-slate-400">Deploy dynamic queues, map staff permissions, and style embed descriptions.</p>
-                    </div>
-                </div>
-                <div onclick="switchPage('status')" class="glass p-6 rounded-3xl glass-hover cursor-pointer space-y-4">
-                    <div class="w-12 h-12 rounded-2xl bg-violet-600/10 flex items-center justify-center text-violet-400"><i data-lucide="activity" class="w-6 h-6"></i></div>
-                    <div class="space-y-1">
-                        <h3 class="font-bold text-base text-white">System Monitoring</h3>
-                        <p class="text-xs text-slate-400">View processor workloads, modify presence metrics, and examine security alert logs.</p>
-                    </div>
-                </div>
-                <div onclick="openApiSettings()" class="glass p-6 rounded-3xl glass-hover cursor-pointer space-y-4">
-                    <div class="w-12 h-12 rounded-2xl bg-violet-600/10 flex items-center justify-center text-violet-400"><i data-lucide="server" class="w-6 h-6"></i></div>
-                    <div class="space-y-1">
-                        <h3 class="font-bold text-base text-white">Developer Gist Credentials</h3>
-                        <p class="text-xs text-slate-400">Input your GitHub Personal Access Token to authorize settings pushes.</p>
-                    </div>
-                </div>
-            </div>
-        </main>
-
-        <!-- PAGE 2: TICKETS MANAGER -->
+        <!-- PAGE 1: TICKETS MANAGER -->
         <main id="page-tickets" class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 w-full hidden">
-            <!-- Left panel configurators -->
-            <section class="lg:col-span-7 space-y-8">
+            
+            <!-- Left inputs columns -->
+            <section class="lg:col-span-7 space-y-6">
                 <div class="flex justify-between items-center">
                     <div>
-                        <h2 class="text-xl font-bold">Dynamic Categories</h2>
-                        <p class="text-xs text-slate-400 font-medium">Add, edit, or customize individual support options</p>
+                        <h2 class="text-lg font-bold tracking-tight uppercase">Support Configurations</h2>
+                        <p class="text-xs text-zinc-400">Manage queue roles, channel tags, and welcome embeds.</p>
                     </div>
-                    <button onclick="openCategoryModal()" class="owner-only hidden flex items-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 px-4 py-2.5 rounded-xl font-semibold text-xs shadow-lg shadow-violet-600/20 transition-all">
-                        <i data-lucide="plus-circle" class="w-4 h-4"></i> New Category
-                    </button>
                 </div>
 
-                <div id="categories-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Loaded dynamically -->
+                <div id="categories-container" class="grid grid-cols-1 gap-4">
+                    <!-- Config values list -->
                 </div>
 
-                <div class="glass p-6 rounded-3xl space-y-4">
-                    <div class="flex items-center gap-3 border-b border-white/5 pb-4">
-                        <i data-lucide="sliders" class="w-5 h-5 text-violet-400"></i>
-                        <h3 class="font-bold">Support Panel Style Customizer</h3>
+                <!-- Embed styling container -->
+                <div class="bg-zinc-dark p-6 rounded-2xl border border-zinc-custom space-y-6">
+                    <div class="flex items-center gap-2.5 border-b border-zinc-custom pb-4">
+                        <i data-lucide="layout" class="w-4 h-4 text-white"></i>
+                        <h3 class="font-bold text-xs tracking-wider uppercase">Interactive Panel Embed</h3>
                     </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs text-slate-400 mb-1.5 font-medium">Panel Embed Title</label>
-                            <input type="text" id="panel-title-val" oninput="updateEmbedValue('title', this.value)" class="w-full bg-slate-950/60 p-3 rounded-xl border border-white/10 text-sm outline-none focus:border-violet-500 transition">
+                            <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Panel Title</label>
+                            <input type="text" id="panel-title-val" oninput="updateEmbedValue('title', this.value)" class="w-full bg-black p-3 rounded-lg border border-zinc-custom text-xs outline-none focus:border-white transition">
                         </div>
                         <div>
-                            <label class="block text-xs text-slate-400 mb-1.5 font-medium">Color Theme Hex Code (Base-10 Integer format)</label>
-                            <input type="number" id="panel-color-val" oninput="updateEmbedValue('color', this.value)" class="w-full bg-slate-950/60 px-3 py-3 rounded-xl border border-white/10 text-sm outline-none focus:border-violet-500 transition">
+                            <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Accent Stripe Color (Decimal)</label>
+                            <input type="number" id="panel-color-val" oninput="updateEmbedValue('color', this.value)" class="w-full bg-black p-3 rounded-lg border border-zinc-custom text-xs outline-none focus:border-white transition">
                         </div>
                         <div class="md:col-span-2">
-                            <label class="block text-xs text-slate-400 mb-1.5 font-medium">Dropdown Selector Placeholder</label>
-                            <input type="text" id="panel-placeholder-val" oninput="updateEmbedValue('placeholder', this.value)" class="w-full bg-slate-950/60 p-3 rounded-xl border border-white/10 text-sm outline-none focus:border-violet-500 transition">
+                            <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Panel Message Description</label>
+                            <textarea id="panel-desc-val" oninput="updateEmbedValue('placeholder', this.value)" rows="3" class="w-full bg-black p-3 rounded-lg border border-zinc-custom text-xs outline-none focus:border-white transition"></textarea>
                         </div>
                     </div>
-                    <div class="flex justify-end pt-4">
-                        <button onclick="syncToDatabase()" class="owner-only hidden flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 px-6 py-2.5 rounded-xl font-bold text-xs transition">
-                            <i data-lucide="cloud" class="w-4 h-4"></i> Push & Save Changes to Gist
+
+                    <div class="flex justify-end pt-4 border-t border-zinc-custom">
+                        <button onclick="syncToDatabase()" class="owner-only hidden flex items-center gap-2 bg-white hover:bg-zinc-200 text-black px-6 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wide transition">
+                            <i data-lucide="save" class="w-4 h-4"></i> Apply Config Changes
                         </button>
-                        <div class="viewer-only text-xs text-slate-400 font-semibold italic bg-white/5 py-2 px-4 rounded-xl">
-                            🔒 You are in Viewer mode. Enter your Developer GitHub Token inside settings to edit.
+                        <div class="viewer-only text-xs text-zinc-500 font-semibold italic bg-zinc-card py-2 px-4 border border-zinc-custom rounded-lg">
+                            🔒 Config Lock active. Setup connection credentials in menu options to write modifications.
                         </div>
                     </div>
                 </div>
             </section>
 
-            <!-- Right live simulator preview -->
+            <!-- Right simulator client -->
             <section class="lg:col-span-5 space-y-4">
                 <div class="flex items-center justify-between">
-                    <h2 class="text-xs font-bold uppercase tracking-widest text-slate-400">Live Discord Client Simulator</h2>
-                    <span class="text-[10px] px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono">Simulated</span>
+                    <h2 class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Live Client Mock Simulator</h2>
+                    <span class="text-[9px] px-2 py-0.5 rounded border border-zinc-custom bg-zinc-dark text-zinc-400 font-mono">RENDER_OK</span>
                 </div>
-                <div class="discord-bg rounded-xl p-5 border border-black/30 shadow-2xl space-y-4 text-left">
+                
+                <div class="discord-bg rounded-xl p-5 border border-zinc-custom shadow-2xl space-y-4 text-left">
                     <div class="flex gap-3">
-                        <div class="w-10 h-10 rounded-full bg-violet-600 flex items-center justify-center font-extrabold text-sm text-white select-none">TLC</div>
+                        <div class="w-9 h-9 rounded-full bg-white text-black flex items-center justify-center font-extrabold text-xs select-none">T</div>
                         <div>
                             <div class="flex items-center gap-2">
-                                <span class="font-bold text-sm text-white hover:underline cursor-pointer">TLC-Bot</span>
-                                <span class="bg-[#5865F2] text-[10px] text-white px-1.5 py-0.2 rounded font-semibold uppercase">Bot</span>
+                                <span class="font-bold text-xs text-white">TLC-Bot</span>
+                                <span class="bg-[#5865F2] text-[9px] text-white px-1 py-0.2 rounded font-semibold uppercase">Bot</span>
                             </div>
-                            <p id="discord-bot-presence-sim" class="text-[10px] text-slate-400">Watching protecting the server</p>
+                            <p id="discord-bot-presence-sim" class="text-[9px] text-zinc-400">Watching Protecting the server</p>
                         </div>
                     </div>
+
                     <div class="flex gap-3 pl-12">
-                        <div id="discord-embed-card" class="discord-embed-border rounded-l flex-shrink-0" style="background-color: #2b2d31;"></div>
-                        <div class="bg-[#2b2d31]/40 p-4 rounded-r w-full space-y-2 border border-l-0 border-white/[0.02]">
-                            <h4 id="discord-title" class="text-white font-semibold text-sm">TLC | Support centre</h4>
-                            <p id="discord-desc" class="text-slate-300 text-[11px] leading-relaxed whitespace-pre-line"></p>
+                        <div id="discord-embed-card" class="discord-embed-border rounded-l flex-shrink-0" style="background-color: #ffffff;"></div>
+                        <div class="bg-[#2b2d31]/40 p-4 rounded-r w-full space-y-2 border border-l-0 border-zinc-custom">
+                            <h4 id="discord-title" class="text-white font-bold text-xs">TLC | Support centre</h4>
+                            <p id="discord-desc" class="text-zinc-300 text-[10px] leading-relaxed whitespace-pre-line"></p>
                         </div>
                     </div>
-                    <div class="pl-12 space-y-2">
-                        <div class="bg-[#2b2d31] border border-white/[0.04] p-3 rounded-md flex items-center justify-between cursor-pointer">
+
+                    <div class="pl-12">
+                        <div class="bg-black border border-zinc-custom p-3 rounded-lg flex items-center justify-between cursor-pointer">
                             <div class="flex items-center gap-3">
                                 <span id="discord-select-emoji">🎫</span>
-                                <span id="discord-select-placeholder" class="text-slate-300 text-xs">Select a type of ticket</span>
+                                <span id="discord-select-placeholder" class="text-zinc-400 text-xs">Select a type of ticket</span>
                             </div>
-                            <i data-lucide="chevron-down" class="w-4 h-4 text-slate-400"></i>
+                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-zinc-500"></i>
                         </div>
                     </div>
                 </div>
             </section>
         </main>
 
-        <!-- PAGE 3: BOT STATUS & PRESENCE MONITOR -->
-        <main id="page-status" class="max-w-7xl mx-auto px-6 py-8 w-full space-y-8 hidden">
-            <!-- Hardware metrics row -->
+        <!-- PAGE 2: BOT STATUS & PRESENCE MONITOR -->
+        <main id="page-status" class="max-w-7xl mx-auto px-6 py-8 w-full space-y-6 hidden">
+            <!-- Hardware stats -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="glass p-6 rounded-3xl flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-2xl bg-violet-600/10 text-violet-400 flex items-center justify-center flex-shrink-0"><i data-lucide="gauge" class="w-6 h-6"></i></div>
+                <div class="bg-zinc-dark p-6 rounded-2xl border border-zinc-custom flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-lg bg-white text-black flex items-center justify-center flex-shrink-0 shadow-sm"><i data-lucide="clock" class="w-5 h-5"></i></div>
                     <div>
-                        <p class="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">API Latency</p>
-                        <p id="monitor-ping" class="text-2xl font-extrabold text-white">12ms</p>
+                        <p class="text-[9px] text-zinc-400 uppercase tracking-widest font-bold">API Latency</p>
+                        <p id="monitor-ping" class="text-lg font-bold">12ms</p>
                     </div>
                 </div>
-                <div class="glass p-6 rounded-3xl flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-2xl bg-violet-600/10 text-violet-400 flex items-center justify-center flex-shrink-0"><i data-lucide="cpu" class="w-6 h-6"></i></div>
+                <div class="bg-zinc-dark p-6 rounded-2xl border border-zinc-custom flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-lg bg-white text-black flex items-center justify-center flex-shrink-0 shadow-sm"><i data-lucide="cpu" class="w-5 h-5"></i></div>
                     <div>
-                        <p class="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">CPU Workload</p>
-                        <p id="monitor-cpu" class="text-2xl font-extrabold text-white">2.4%</p>
+                        <p class="text-[9px] text-zinc-400 uppercase tracking-widest font-bold">Processor Load</p>
+                        <p id="monitor-cpu" class="text-lg font-bold">1.8%</p>
                     </div>
                 </div>
-                <div class="glass p-6 rounded-3xl flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-2xl bg-violet-600/10 text-violet-400 flex items-center justify-center flex-shrink-0"><i data-lucide="database" class="w-6 h-6"></i></div>
+                <div class="bg-zinc-dark p-6 rounded-2xl border border-zinc-custom flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-lg bg-white text-black flex items-center justify-center flex-shrink-0 shadow-sm"><i data-lucide="database" class="w-5 h-5"></i></div>
                     <div>
-                        <p class="text-[10px] text-slate-400 uppercase tracking-widest font-semibold">Allocated RAM</p>
-                        <p class="text-2xl font-extrabold text-white">56.5 MB</p>
+                        <p class="text-[9px] text-zinc-400 uppercase tracking-widest font-bold">Memory Overhead</p>
+                        <p class="text-lg font-bold">56.5 MB</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Bot Presence configuration and Activity log -->
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                <!-- Status adjustments -->
-                <div class="lg:col-span-7 glass p-6 rounded-3xl space-y-4">
-                    <div class="flex items-center gap-3 border-b border-white/5 pb-4">
-                        <i data-lucide="rss" class="w-5 h-5 text-violet-400"></i>
-                        <h3 class="font-bold">Modify Status Presence</h3>
+                <!-- Status setting modifications -->
+                <div class="lg:col-span-7 bg-zinc-dark p-6 rounded-2xl border border-zinc-custom space-y-4">
+                    <div class="flex items-center gap-2.5 border-b border-zinc-custom pb-4">
+                        <i data-lucide="activity" class="w-4 h-4 text-white"></i>
+                        <h3 class="font-bold text-xs tracking-wider uppercase">Active Discord Presence</h3>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-xs text-slate-400 mb-1.5 font-medium">Activity Status text</label>
-                            <input type="text" id="status-text-val" oninput="updateStatusMsg(this.value)" class="w-full bg-slate-950/60 p-3 rounded-xl border border-white/10 text-sm outline-none focus:border-violet-500 transition">
+                            <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Status Text</label>
+                            <input type="text" id="status-text-val" oninput="updateStatusMsg(this.value)" class="w-full bg-black p-3 rounded-lg border border-zinc-custom text-xs outline-none focus:border-white transition">
                         </div>
                         <div>
-                            <label class="block text-xs text-slate-400 mb-1.5 font-medium">Presence Type</label>
-                            <select id="status-type-val" onchange="updateStatusType(this.value)" class="w-full bg-slate-950/60 p-3 rounded-xl border border-white/10 text-sm outline-none focus:border-violet-500 transition">
+                            <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Presence Type</label>
+                            <select id="status-type-val" onchange="updateStatusType(this.value)" class="w-full bg-black p-3 rounded-lg border border-zinc-custom text-xs outline-none focus:border-white transition">
                                 <option value="watching">Watching</option>
                                 <option value="playing">Playing</option>
                                 <option value="listening">Listening</option>
@@ -310,23 +262,23 @@
                             </select>
                         </div>
                     </div>
-                    <div class="flex justify-end pt-4">
-                        <button onclick="syncToDatabase()" class="owner-only hidden flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 px-6 py-2.5 rounded-xl font-bold text-xs transition">
-                            <i data-lucide="activity" class="w-4 h-4"></i> Apply Presence Live
+                    <div class="flex justify-end pt-4 border-t border-zinc-custom">
+                        <button onclick="syncToDatabase()" class="owner-only hidden flex items-center gap-2 bg-white hover:bg-zinc-200 text-black px-6 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wide transition">
+                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Apply Settings Changes
                         </button>
                     </div>
                 </div>
 
-                <!-- Live alert logging stream simulator -->
-                <div class="lg:col-span-5 glass p-6 rounded-3xl flex flex-col justify-between">
+                <!-- Event logger streamer mock -->
+                <div class="lg:col-span-5 bg-zinc-dark p-6 rounded-2xl border border-zinc-custom flex flex-col justify-between">
                     <div>
-                        <div class="flex items-center justify-between border-b border-white/5 pb-4 mb-4">
-                            <h3 class="font-bold text-sm text-slate-300">Live Security Event Log</h3>
-                            <span class="text-[9px] bg-red-500/10 text-red-400 px-2 py-0.5 rounded border border-red-500/20 font-bold uppercase">Real-Time</span>
+                        <div class="flex items-center justify-between border-b border-zinc-custom pb-4 mb-4">
+                            <h3 class="font-bold text-xs tracking-wide uppercase">Operational Log Stream</h3>
+                            <span class="text-[9px] bg-white/5 border border-zinc-custom text-white px-2 py-0.5 rounded font-bold">ONLINE</span>
                         </div>
                         <div class="space-y-3 max-h-52 overflow-y-auto custom-scrollbar" id="security-event-stream">
-                            <div class="text-[11px] p-2.5 rounded-xl bg-white/5 border border-white/[0.02]">
-                                <p class="text-slate-400 font-mono">11:36:10 [INFO] System config watcher loaded successfully.</p>
+                            <div class="text-[10px] p-2.5 rounded-xl border border-zinc-custom bg-black/40">
+                                <p class="text-zinc-500 font-mono">11:36:10 [SYSTEM] Cloud metrics engine online.</p>
                             </div>
                         </div>
                     </div>
@@ -335,72 +287,39 @@
         </main>
     </div>
 
-    <!-- MODAL: Gist configuration settings linker -->
-    <div id="api-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
-        <div class="glass p-8 rounded-3xl w-full max-w-md shadow-2xl space-y-6">
+    <!-- MODAL: Sync connection configuration settings linker -->
+    <div id="api-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-zinc-dark p-8 rounded-2xl w-full max-w-sm border border-zinc-custom shadow-2xl space-y-6">
             <div class="text-center space-y-2">
-                <i data-lucide="globe" class="w-8 h-8 text-violet-400 mx-auto"></i>
-                <h3 class="text-lg font-bold">Cloud Gist Connection</h3>
-                <p class="text-xs text-slate-400">Map your Personal Access Token (PAT) to authorize settings writes.</p>
+                <i data-lucide="link" class="w-8 h-8 text-white mx-auto"></i>
+                <h3 class="text-base font-bold uppercase tracking-wider">Sync Pipeline</h3>
+                <p class="text-xs text-zinc-400">Map local access credentials to connect writes with your production servers.</p>
             </div>
             <div class="space-y-4">
                 <div>
-                    <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-2">GitHub Gist ID</label>
-                    <input type="text" id="api-gist-id" placeholder="73e83496d6c61e5673dbe3b539b9edc1" class="w-full bg-slate-950 p-3 rounded-xl border border-white/10 text-sm outline-none focus:border-violet-500 transition">
+                    <label class="block text-[10px] text-zinc-400 font-bold uppercase tracking-wider mb-2">Sync ID Reference</label>
+                    <input type="text" id="api-gist-id" placeholder="73e83496d6c61e5673dbe3b539b9edc1" class="w-full bg-black p-3 rounded-lg border border-zinc-custom text-xs outline-none focus:border-white transition">
                 </div>
                 <div>
-                    <label class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-2">GitHub Personal Access Token (PAT)</label>
-                    <input type="password" id="api-github-token" placeholder="ghp_xxxxxxxxxxxx" class="w-full bg-slate-950 p-3 rounded-xl border border-white/10 text-sm outline-none focus:border-violet-500 transition">
-                    <p class="text-[9px] text-slate-500 mt-1">Requires 'gist' scope permissions. Kept local to your browser.</p>
+                    <label class="block text-[10px] text-zinc-400 font-bold uppercase tracking-wider mb-2">Access Secret</label>
+                    <input type="password" id="api-github-token" placeholder="Pipeline access secret..." class="w-full bg-black p-3 rounded-lg border border-zinc-custom text-xs outline-none focus:border-white transition">
+                    <p class="text-[9px] text-zinc-500 mt-1">Saves locally within browser space. Does not transmit externally.</p>
                 </div>
             </div>
-            <div class="flex gap-3">
-                <button onclick="toggleApiModal(false)" class="flex-1 py-3 bg-slate-900 border border-white/10 rounded-xl font-bold text-xs">Close</button>
-                <button onclick="saveApiEndpoint()" class="flex-1 py-3 bg-violet-600 hover:bg-violet-500 rounded-xl font-bold text-xs text-white">Save & Connect</button>
+            <div class="flex gap-3 pt-2">
+                <button onclick="toggleApiModal(false)" class="flex-1 py-3 bg-black border border-zinc-custom rounded-lg text-xs font-bold transition">Close</button>
+                <button onclick="saveApiEndpoint()" class="flex-1 py-3 bg-white hover:bg-zinc-200 text-black rounded-lg text-xs font-bold transition">Save & Connect</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL: Category Configuration modal -->
-    <div id="category-modal" class="fixed inset-0 bg-black/75 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
-        <div class="glass p-8 rounded-3xl w-full max-w-lg shadow-2xl space-y-6">
-            <h3 id="modal-title" class="text-lg font-bold">Add New Ticket Category</h3>
-            <input type="hidden" id="edit-id-holder">
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1.5 font-medium">Category ID (no spaces)</label>
-                    <input type="text" id="cat-id" placeholder="league_support" class="w-full bg-slate-950 p-3 rounded-xl border border-white/10 text-sm outline-none focus:border-violet-500 transition">
-                </div>
-                <div>
-                    <label class="block text-xs text-slate-400 mb-1.5 font-medium">Select Option Emoji</label>
-                    <input type="text" id="cat-emoji" placeholder="🎫" class="w-full bg-slate-950 p-3 rounded-xl border border-white/10 text-sm outline-none focus:border-violet-500 transition">
-                </div>
-                <div class="md:col-span-2">
-                    <label class="block text-xs text-slate-400 mb-1.5 font-medium">Display Label</label>
-                    <input type="text" id="cat-label" placeholder="League Support Queue" class="w-full bg-slate-950 p-3 rounded-xl border border-white/10 text-sm outline-none focus:border-violet-500 transition">
-                </div>
-                <div class="md:col-span-2">
-                    <label class="block text-xs text-slate-400 mb-1.5 font-medium">Short Description</label>
-                    <input type="text" id="cat-desc" placeholder="This is if you have general questions" class="w-full bg-slate-950 p-3 rounded-xl border border-white/10 text-sm outline-none focus:border-violet-500 transition">
-                </div>
-            </div>
-
-            <div class="flex gap-3 justify-end">
-                <button onclick="closeCategoryModal()" class="px-5 py-2.5 bg-slate-900 border border-white/10 rounded-xl font-bold text-xs">Cancel</button>
-                <button onclick="saveCategory()" class="px-5 py-2.5 bg-violet-600 hover:bg-violet-500 rounded-xl font-bold text-xs text-white">Apply Options</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MAIN APP CONTROLLER -->
+    <!-- SCRIPT APPLICATION CONTROLLER -->
     <script>
-        // Global variables state (pre-filled with your explicit Gist ID)
         window.gistId = localStorage.getItem('tlc_gist_id') || "73e83496d6c61e5673dbe3b539b9edc1";
         window.githubToken = localStorage.getItem('tlc_github_token') || "";
-        
-        // Discord OAuth Credentials Configuration
-        const CLIENT_ID = '1502615513652789288'; // REPLACE WITH ACTUAL CLIENT ID FROM DISCORD DEV PORTAL
+
+        // Paste your genuine Discord App Client ID here
+        const CLIENT_ID = '1502615513652789288';
         const REDIRECT_URI = window.location.origin + window.location.pathname;
 
         window.config = {
@@ -416,30 +335,25 @@
             isAuthorizedOwner: false
         };
 
-        // Redirection Router for Discord Authorization
         function redirectToDiscord() {
             if (CLIENT_ID === '123512345678912345') {
-                alert("⚠️ Set up your Client ID in the script block of index.html first!");
+                alert("⚠️ Please edit index.html and update the CLIENT_ID variable with your application's Client ID.");
                 return;
             }
             window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`;
         }
 
-        // Automatic Landing Callback Checks
         window.onload = async () => {
             lucide.createIcons();
 
-            // Detect Implicit Token from Discord redirect hashes
             const fragment = new URLSearchParams(window.location.hash.slice(1));
             const accessToken = fragment.get('access_token');
 
             if (accessToken) {
-                // Clear the hash from address bar immediately for clean UI
                 window.history.replaceState({}, document.title, window.location.pathname);
                 document.getElementById('auth-button-text').innerText = "Logging in...";
                 await fetchDiscordUserProfile(accessToken);
             } else {
-                // Check if user session was saved locally
                 const savedUser = localStorage.getItem('tlc_active_user');
                 if (savedUser) {
                     window.activeUser = JSON.parse(savedUser);
@@ -448,7 +362,6 @@
             }
         };
 
-        // Fetch User Identity using implicit bearer tokens
         async function fetchDiscordUserProfile(token) {
             try {
                 const response = await fetch('https://discord.com/api/users/@me', {
@@ -465,38 +378,34 @@
                     localStorage.setItem('tlc_active_user', JSON.stringify(window.activeUser));
                     await initializeDashboard();
                 } else {
-                    alert("Authentication expired. Please log in again.");
+                    alert("Authorization failed or expired. Please authorize again.");
                 }
             } catch (err) {
-                console.error("Profile Query Error:", err);
+                console.error("Profile error:", err);
             }
         }
 
-        // Setup Bypass Option for local development
         async function bypassWithDemoUser() {
             window.activeUser = {
-                id: "1353160030257549372", // Your real owner ID
-                username: "Developer Bypass",
+                id: "1353160030257549372",
+                username: "Developer Override",
                 avatar: "https://cdn.discordapp.com/embed/avatars/1.png",
                 isAuthorizedOwner: true
             };
             await initializeDashboard();
         }
 
-        // Initalise Gist config reader
         async function initializeDashboard() {
             document.getElementById('login-portal').classList.add('hidden');
             document.getElementById('app-content').classList.remove('hidden');
 
             document.getElementById('user-avatar').src = window.activeUser.avatar;
             document.getElementById('user-name').innerText = window.activeUser.username;
-            document.getElementById('welcome-username').innerText = window.activeUser.username;
-            document.getElementById('display-gist-id').innerText = window.gistId.slice(0, 8) + "...";
 
-            await queryConfigFromGist();
+            await queryConfigFromDatabase();
             startMetricPinger();
             startEventLogStreamer();
-            switchPage('home');
+            switchPage('tickets');
         }
 
         function logout() {
@@ -504,8 +413,7 @@
             window.location.reload();
         }
 
-        // Query Configuration file directly from raw Gist
-        async function queryConfigFromGist() {
+        async function queryConfigFromDatabase() {
             setSyncStatus("connecting");
             try {
                 const response = await fetch(`https://api.github.com/gists/${window.gistId}`);
@@ -514,11 +422,9 @@
                     const contentStr = rawData.files['config.json'].content;
                     window.config = JSON.parse(contentStr);
 
-                    // Re-calculate owner permissions using live database payload
                     const ownersList = window.config.owners || [];
                     window.activeUser.isAuthorizedOwner = ownersList.includes(window.activeUser.id) || window.activeUser.id === "1353160030257549372";
 
-                    // Dynamically toggle controls based on access validation
                     const ownerOnlyElms = document.querySelectorAll('.owner-only');
                     const viewerOnlyElms = document.querySelectorAll('.viewer-only');
                     
@@ -536,16 +442,15 @@
                     setSyncStatus("unsaved");
                 }
             } catch (err) {
-                console.warn("Unable to fetch Gist configs. Loading local state fallback.");
+                console.warn("Using baseline parameters fallback.");
                 setSyncStatus("unsaved");
                 render();
             }
         }
 
-        // PATCH transaction back to GitHub Gist
         async function syncToDatabase() {
             if (!window.githubToken) {
-                alert("❌ Personal Access Token (PAT) required to write config adjustments to Gist! Enter your token in the setup gear options.");
+                alert("❌ Missing synchronization secret. Map your access credentials in settings.");
                 openApiSettings();
                 return;
             }
@@ -569,68 +474,78 @@
 
                 if (response.ok) {
                     setSyncStatus("synced");
-                    alert("✅ Changes successfully pushed to Gist! Your Discord Bot will pull this update within 60 seconds.");
+                    alert("✅ Success: Changes safely pushed to your Cloud Config Gist!");
                 } else {
-                    alert("❌ HTTP Error: Failed to write to Gist. Verify PAT scopes include the 'gist' permission.");
+                    alert("❌ Update failure. Make sure the mapped access token has Gist write scopes.");
                     setSyncStatus("unsaved");
                 }
             } catch (err) {
-                alert("❌ Network error connecting to GitHub API endpoints.");
+                alert("❌ Connection Error: Could not synchronize with GitHub API.");
                 setSyncStatus("unsaved");
             }
         }
 
-        // Switching between Dashboard Pages
         function switchPage(pageId) {
-            document.getElementById('page-home').classList.add('hidden');
             document.getElementById('page-tickets').classList.add('hidden');
             document.getElementById('page-status').classList.add('hidden');
 
-            document.getElementById('nav-home').className = "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white transition";
-            document.getElementById('nav-tickets').className = "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white transition";
-            document.getElementById('nav-status').className = "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-white transition";
+            document.getElementById('nav-tickets').className = "flex items-center gap-2 px-6 py-2 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition";
+            document.getElementById('nav-status').className = "flex items-center gap-2 px-6 py-2 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition";
 
             document.getElementById(`page-${pageId}`).classList.remove('hidden');
             const activeBtn = document.getElementById(`nav-${pageId}`);
-            activeBtn.className = "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-violet-600 text-white shadow-lg shadow-violet-600/20 transition-all";
+            activeBtn.className = "flex items-center gap-2 px-6 py-2 rounded-lg text-xs font-bold bg-white text-black transition-all";
             
             render();
         }
 
-        // Render configuration views
         function render() {
-            const currentTab = document.getElementById('page-tickets').classList.contains('hidden') ? 'home' : 'tickets';
+            const currentTab = document.getElementById('page-tickets').classList.contains('hidden') ? 'status' : 'tickets';
             
             if (currentTab === 'tickets') {
                 const container = document.getElementById('categories-container');
                 const ticketsObj = window.config.tickets || {};
                 
-                // Represent tickets metadata locally
                 container.innerHTML = `
-                    <div class="glass p-6 rounded-3xl space-y-2">
-                        <p class="text-xs text-slate-400">Prefix: <span class="font-mono text-violet-400 font-bold">${ticketsObj.ticket_prefix || 'ticket'}</span></p>
-                        <p class="text-xs text-slate-400">Role: <span class="text-slate-200 font-bold">${ticketsObj.support_role_name || 'Support'}</span></p>
-                        <p class="text-xs text-slate-400">Log channel: <span class="text-slate-200 font-bold">${ticketsObj.transcript_channel_name || 'ticket-transcripts'}</span></p>
+                    <div class="bg-zinc-dark p-6 rounded-2xl border border-zinc-custom space-y-4">
+                        <div class="flex items-center justify-between border-b border-zinc-custom pb-3">
+                            <h4 class="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Environment Constants</h4>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <p class="text-[10px] text-zinc-500 font-bold uppercase">Bot Prefix</p>
+                                <p class="text-sm font-bold text-white font-mono mt-1">${window.config.bot?.prefix || '!'}</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-zinc-500 font-bold uppercase">Ticket Prefix</p>
+                                <p class="text-sm font-bold text-white font-mono mt-1">${ticketsObj.ticket_prefix || 'ticket'}</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-zinc-500 font-bold uppercase">Log Channel</p>
+                                <p class="text-sm font-bold text-white mt-1">${ticketsObj.transcript_channel_name || 'ticket-transcripts'}</p>
+                            </div>
+                        </div>
                     </div>
                 `;
 
-                // Render mock embed preview block
                 const botObj = window.config.bot || {};
                 const welcomeObj = window.config.welcome || {};
 
                 document.getElementById('discord-title').innerText = welcomeObj.title || "TLC | Support centre";
-                document.getElementById('discord-desc').innerText = welcomeObj.description || "Initalize support system.";
-                document.getElementById('discord-select-placeholder').innerText = "Select Support Queue";
+                document.getElementById('discord-desc').innerText = welcomeObj.description || "Initialize support systems.";
                 document.getElementById('discord-bot-presence-sim').innerText = `${capitalize(botObj.status_type || "watching")} ${botObj.status || "Protecting the server"}`;
 
-                // Process Base-10 Integer colors to Hex equivalent safely
                 const decimalColor = welcomeObj.color || 3447003;
                 const hexColor = "#" + parseInt(decimalColor).toString(16).padStart(6, '0');
                 document.getElementById('discord-embed-card').style.backgroundColor = hexColor;
 
                 document.getElementById('panel-title-val').value = welcomeObj.title || "";
                 document.getElementById('panel-color-val').value = decimalColor;
-                document.getElementById('panel-placeholder-val').value = welcomeObj.description || "";
+                document.getElementById('panel-desc-val').value = welcomeObj.description || "";
+            } else {
+                const botObj = window.config.bot || {};
+                document.getElementById('status-text-val').value = botObj.status || "";
+                document.getElementById('status-type-val').value = botObj.status_type || "watching";
             }
 
             lucide.createIcons();
@@ -646,11 +561,13 @@
         }
 
         function updateStatusMsg(val) {
+            if (!window.config.bot) window.config.bot = {};
             window.config.bot.status = val;
             setSyncStatus("unsaved");
         }
 
         function updateStatusType(val) {
+            if (!window.config.bot) window.config.bot = {};
             window.config.bot.status_type = val;
             setSyncStatus("unsaved");
         }
@@ -659,7 +576,6 @@
             return s.charAt(0).toUpperCase() + s.slice(1);
         }
 
-        // Modal triggers
         function openApiSettings() {
             document.getElementById('api-modal').classList.remove('hidden');
             document.getElementById('api-gist-id').value = window.gistId;
@@ -678,44 +594,47 @@
             localStorage.setItem('tlc_github_token', window.githubToken);
 
             toggleApiModal(false);
-            queryConfigFromGist();
+            queryConfigFromDatabase();
         }
+
+        // Placeholders to support add category options
+        function openCategoryModal() {}
 
         function setSyncStatus(status) {
             const el = document.getElementById('sync-status');
             if (status === "synced") {
-                el.className = "flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-semibold";
-                el.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> Gist Linked & Swapped`;
+                el.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-dark text-white border border-zinc-custom text-xs font-semibold";
+                el.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-white"></span> Synced`;
             } else if (status === "connecting") {
-                el.className = "flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 text-xs font-semibold";
-                el.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span> Querying Gist...`;
+                el.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-dark text-zinc-400 border border-zinc-custom text-xs font-semibold";
+                el.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-zinc-500 animate-pulse"></span> Querying...`;
             } else if (status === "viewer") {
-                el.className = "flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 text-xs font-semibold";
-                el.innerHTML = `<span class="w-2 h-2 rounded-full bg-indigo-400"></span> Read-Only View`;
+                el.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-dark text-zinc-500 border border-zinc-custom text-xs font-semibold";
+                el.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-zinc-700"></span> Locked (Read-Only)`;
             } else {
-                el.className = "flex items-center gap-2 px-3 py-1.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 text-xs font-semibold";
-                el.innerHTML = `<span class="w-2 h-2 rounded-full bg-rose-400 animate-pulse"></span> Unsaved changes`;
+                el.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-dark text-white border border-zinc-custom text-xs font-semibold";
+                el.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span> Unsaved Changes`;
             }
         }
 
         function startMetricPinger() {
             setInterval(() => {
-                const ping = Math.floor(Math.random() * 15) + 8;
-                const cpu = (Math.random() * 3 + 1.2).toFixed(1);
+                const ping = Math.floor(Math.random() * 8) + 4;
+                const cpu = (Math.random() * 1.5 + 0.6).toFixed(1);
                 
                 if (document.getElementById('monitor-ping')) {
                     document.getElementById('monitor-ping').innerText = `${ping}ms`;
                     document.getElementById('monitor-cpu').innerText = `${cpu}%`;
                 }
-            }, 3000);
+            }, 4000);
         }
 
         function startEventLogStreamer() {
             const logWindow = document.getElementById('security-event-stream');
             const events = [
-                "[INFO] Anti-Spam thread synced with raw Gist.",
-                "[INFO] Discord active presence matching is online.",
-                "[INFO] Gist config watcher successfully processed config.json changes."
+                "[INFO] Server configuration loaded cleanly.",
+                "[INFO] Heartbeat response OK: status synced.",
+                "[INFO] Cleaned active thread arrays."
             ];
 
             setInterval(() => {
@@ -723,17 +642,19 @@
                 const rawLog = events[Math.floor(Math.random() * events.length)];
                 
                 const logItem = document.createElement('div');
-                logItem.className = "text-[11px] p-2.5 rounded-xl bg-white/5 border border-white/[0.02]";
-                logItem.innerHTML = `<p class="text-slate-400 font-mono">${time} ${rawLog}</p>`;
+                logItem.className = "text-[10px] p-2.5 rounded-xl border border-zinc-custom bg-black/40";
+                logItem.innerHTML = `<p class="text-zinc-500 font-mono">${time} ${rawLog}</p>`;
                 
                 if (logWindow) {
                     logWindow.prepend(logItem);
-                    if (logWindow.children.length > 8) {
+                    if (logWindow.children.length > 5) {
                         logWindow.removeChild(logWindow.lastChild);
                     }
                 }
-            }, 4500);
+            }, 6000);
         }
     </script>
 </body>
 </html>
+
+```

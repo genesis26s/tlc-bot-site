@@ -29,6 +29,7 @@
 
         /* Minimal scrollbars */
         .custom-scrollbar::-webkit-scrollbar {
+            height: 4px;
             width: 4px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
@@ -44,14 +45,14 @@
 
     <!-- CONNECTION STATE / DIAGNOSTIC OVERLAY -->
     <div id="diagnostic-screen" class="hidden fixed inset-0 z-50 bg-black flex flex-col items-center justify-center p-6 space-y-6">
-        <div class="w-10 h-10 rounded-full border border-t-transparent border-white animate-spin"></div>
+        <div class="w-8 h-8 rounded-full border border-t-transparent border-white animate-spin"></div>
         <div class="text-center space-y-2 max-w-sm">
-            <h3 class="text-xs font-bold uppercase tracking-wider">Verifying Credentials</h3>
+            <h3 class="text-xs font-bold uppercase tracking-wider">Verifying Pipeline Credentials</h3>
             <p id="diagnostic-log" class="text-xs text-zinc-400 font-mono">Initiating secure Discord handshake...</p>
         </div>
     </div>
 
-    <!-- MINIMALIST AUTHENTICATION GATEWAY (Black & White Style) -->
+    <!-- MINIMALIST AUTHENTICATION GATEWAY -->
     <div id="login-portal" class="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black transition-all duration-500">
         <div class="bg-zinc-dark max-w-sm w-full p-8 rounded-3xl border border-zinc-custom shadow-2xl space-y-8 text-center relative overflow-hidden">
             <div class="space-y-4">
@@ -60,13 +61,15 @@
                 </div>
                 <div class="space-y-2">
                     <h1 class="text-xl font-bold tracking-tight text-white uppercase">TLC Cloud Console</h1>
-                    <p class="text-zinc-400 text-xs max-w-xs mx-auto">Authorize server control privileges to fetch and modify custom operational rules.</p>
+                    <p class="text-zinc-400 text-xs max-w-xs mx-auto font-medium leading-relaxed">Authorize server control privileges to securely fetch and update custom operational rules across your active guilds.</p>
                 </div>
             </div>
 
             <div class="space-y-3">
                 <button id="discord-auth-btn" onclick="redirectToDiscord()" class="w-full flex items-center justify-center gap-2.5 bg-white hover:bg-zinc-200 text-black py-3 px-5 rounded-xl font-bold text-xs tracking-wider uppercase transition-all duration-200">
-                    <i data-lucide="shield-alert" class="w-4 h-4"></i>
+                    <svg class="w-4 h-4 fill-current" viewBox="0 0 127.14 96.36">
+                        <path d="M107.7,8.07A105.15,105.15,0,0,0,77.26,0a77.19,77.19,0,0,0-3.3,6.83A96.67,96.67,0,0,0,53.22,6.83,77.19,77.19,0,0,0,49.88,0,105.15,105.15,0,0,0,19.44,8.07C3.66,31.58-1.86,54.65,1,77.53A105.73,105.73,0,0,0,32,96.36a77.7,77.7,0,0,0,6.63-10.85,68.43,68.43,0,0,1-10.5-5c.87-.64,1.71-1.32,2.51-2a75.52,75.52,0,0,0,73,0c.8.71,1.64,1.39,2.51,2a68.43,68.43,0,0,1-10.5,5,77.7,77.7,0,0,0,6.63,10.85,105.73,105.73,0,0,0,31-18.83C129.81,50.12,123.63,27.35,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53S36.18,40.36,42.45,40.36,53.83,46,53.83,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.24,60,73.24,53S78.41,40.36,84.69,40.36,96.07,46,96.07,53,91,65.69,84.69,65.69Z"/>
+                    </svg>
                     Authorise with Discord
                 </button>
                 
@@ -92,11 +95,11 @@
                     </div>
                     <div>
                         <h1 class="font-bold text-xs tracking-wider uppercase">TLC Cloud Console</h1>
-                        <p class="text-[9px] text-zinc-400 font-medium">Secured Administration Portal</p>
+                        <p class="text-[9px] text-zinc-400 font-medium font-mono uppercase tracking-widest">Secured Gateway</p>
                     </div>
                 </div>
 
-                <!-- 2 MINIMAL TABS ONLY -->
+                <!-- NAVIGATION TABS -->
                 <nav class="flex items-center bg-zinc-dark border border-zinc-custom p-1 rounded-xl">
                     <button onclick="switchPage('tickets')" id="nav-tickets" class="flex items-center gap-2 px-6 py-2 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition">
                         <i data-lucide="ticket" class="w-3.5 h-3.5"></i> Tickets
@@ -106,7 +109,7 @@
                     </button>
                 </nav>
 
-                <!-- Profile and system settings triggers -->
+                <!-- Profile and system lock triggers -->
                 <div class="flex items-center gap-4">
                     <button onclick="openApiSettings()" class="p-2 rounded-lg border border-zinc-custom hover:bg-zinc-dark transition">
                         <i data-lucide="sliders" class="w-3.5 h-3.5 text-zinc-400"></i>
@@ -114,7 +117,7 @@
 
                     <div id="sync-status" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-dark border border-zinc-custom text-zinc-400 text-xs font-semibold">
                         <span id="sync-dot" class="w-1.5 h-1.5 rounded-full bg-zinc-600"></span>
-                        <span id="sync-label">Secure Pipeline</span>
+                        <span id="sync-label" class="text-[10px] uppercase font-bold tracking-wider">Loading...</span>
                     </div>
 
                     <div class="flex items-center gap-3 bg-zinc-dark p-1.5 pr-4 rounded-xl border border-zinc-custom">
@@ -128,6 +131,16 @@
             </div>
         </header>
 
+        <!-- GUILD SLIDER BANNER -->
+        <section class="border-b border-zinc-custom bg-black py-4 px-6 overflow-hidden">
+            <div class="max-w-7xl mx-auto space-y-2">
+                <p class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest">Select Target Server Context</p>
+                <div id="guild-selector-container" class="flex items-center gap-3 overflow-x-auto py-1 custom-scrollbar">
+                    <!-- Loaded dynamically via Discord User Guilds endpoint -->
+                </div>
+            </div>
+        </section>
+
         <!-- PAGE 1: TICKETS MANAGER -->
         <main id="page-tickets" class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 w-full hidden">
             <!-- Left inputs columns -->
@@ -135,7 +148,7 @@
                 <div class="flex justify-between items-center">
                     <div>
                         <h2 class="text-lg font-bold tracking-tight uppercase">Support Configurations</h2>
-                        <p class="text-xs text-zinc-400">Manage queue roles, channel tags, and welcome embeds.</p>
+                        <p id="target-guild-desc" class="text-xs text-zinc-400">Manage support variables for your active server context.</p>
                     </div>
                 </div>
 
@@ -321,22 +334,25 @@
         // ==========================================
         //  TLC CONSOLE - SECURE CONFIGURATION BLOCK
         // ==========================================
-        const DISCORD_CLIENT_ID = "1502615513652789288"; // Put your actual Discord Application Client ID here
-        const SECURE_SYNC_ID    = "73e83496d6c61e5673dbe3b539b9edc1"; // Put your dynamic Gist ID here
+        const DISCORD_CLIENT_ID = "1502615513652789288"; 
+        const SECURE_SYNC_ID    = "73e83496d6c61e5673dbe3b539b9edc1"; 
         // ==========================================
 
         window.gistId = localStorage.getItem('tlc_gist_id') || SECURE_SYNC_ID;
         window.githubToken = localStorage.getItem('tlc_github_token') || "";
 
-        // Calculate the absolute path to work flawlessly on GitHub subfolders
         const REDIRECT_URI = window.location.origin + window.location.pathname;
 
         window.config = {
             bot: { name: "TLC-Bot", prefix: "!", status: "Protecting the server", status_type: "watching", color: 3447003 },
             tickets: { category_name: "Tickets", ticket_prefix: "ticket" },
-            owners: ["1353160030257549372", "1205231118312411191"]
+            owners: ["1353160030257549372", "1205231118312411191"],
+            guilds: {} // Real dynamic configurations indexed per Guild ID will reside here
         };
 
+        window.userGuilds = []; // Array of retrieved user guilds from Discord API
+        window.selectedGuildId = ""; // Active selected guild in workspace
+        
         window.activeUser = {
             id: "",
             username: "Guest",
@@ -355,89 +371,119 @@
         }
 
         function redirectToDiscord() {
-            if (DISCORD_CLIENT_ID === '123512345678912345' || !DISCORD_CLIENT_ID) {
-                alert("⚠️ Please edit index.html and update the DISCORD_CLIENT_ID constant at the top of the script block.");
+            if (!DISCORD_CLIENT_ID || DISCORD_CLIENT_ID === "123512345678912345") {
+                alert("⚠️ DISCORD_CLIENT_ID is not configured. Please fill it in the script variables!");
                 return;
             }
-            // Ask for token authorization (Implicit Grant redirect)
-            const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`;
+            // Ask for both 'identify' and 'guilds' permissions to fetch actual servers and manage user roles!
+            const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify%20guilds`;
             showDiagnostic("Redirecting safely to Discord...");
             window.location.href = authUrl;
         }
 
-        // Parse token parameter fragments immediately during load cycle
+        // Parse token fragments on load
         window.addEventListener('DOMContentLoaded', async () => {
             lucide.createIcons();
 
-            // Parse implicit URL fragment hashes
             const hashParams = new URLSearchParams(window.location.hash.slice(1));
             const accessToken = hashParams.get('access_token');
 
-            // Fallback: Check if there's a search query redirect parameter
-            const queryParams = new URLSearchParams(window.location.search);
-            const authCode = queryParams.get('code');
-
             if (accessToken) {
                 showDiagnostic("Auth token detected! Registering secure session...");
-                // Instantly wipe url params so refreshes don't re-trigger redirects
                 window.history.replaceState({}, document.title, window.location.pathname);
                 await fetchDiscordUserProfile(accessToken);
-            } else if (authCode) {
-                showDiagnostic("Implicit authorization code caught. Finalizing handshake...");
-                window.history.replaceState({}, document.title, window.location.pathname);
-                hideDiagnostic();
             } else {
-                // Load existing session values if saved
                 const savedUser = localStorage.getItem('tlc_active_user');
+                const savedGuilds = localStorage.getItem('tlc_user_guilds');
                 if (savedUser) {
                     window.activeUser = JSON.parse(savedUser);
+                    if (savedGuilds) {
+                        window.userGuilds = JSON.parse(savedGuilds);
+                    }
                     await initializeDashboard();
                 }
             }
         });
 
+        // Fetch User Identity & Guild Profile List
         async function fetchDiscordUserProfile(token) {
             showDiagnostic("Connecting to Discord profile database...");
             try {
-                const response = await fetch('https://discord.com/api/users/@me', {
+                // 1. Fetch @me user profile
+                const userResp = await fetch('https://discord.com/api/users/@me', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                if (response.ok) {
-                    const data = await response.json();
-                    showDiagnostic(`Authenticated as: ${data.username}. Finalizing workspace...`);
-                    window.activeUser = {
-                        id: data.id,
-                        username: `${data.username}`,
-                        avatar: data.avatar ? `https://cdn.discordapp.com/avatars/${data.id}/${data.avatar}.png` : `https://cdn.discordapp.com/embed/avatars/${data.id % 5}.png`,
-                        isAuthorizedOwner: false
-                    };
-                    localStorage.setItem('tlc_active_user', JSON.stringify(window.activeUser));
-                    await initializeDashboard();
-                } else {
-                    hideDiagnostic();
-                    alert("Authorization token has expired. Please sign in again.");
+                
+                if (!userResp.ok) throw new Error("Could not retrieve user profile.");
+                const userData = await userResp.json();
+                
+                window.activeUser = {
+                    id: userData.id,
+                    username: `${userData.username}`,
+                    avatar: userData.avatar ? `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png` : `https://cdn.discordapp.com/embed/avatars/${userData.id % 5}.png`,
+                    isAuthorizedOwner: false
+                };
+                localStorage.setItem('tlc_active_user', JSON.stringify(window.activeUser));
+
+                // 2. Fetch User Guilds
+                showDiagnostic("Retrieving associated Discord guilds...");
+                const guildsResp = await fetch('https://discord.com/api/users/@me/guilds', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                
+                if (guildsResp.ok) {
+                    const guildsData = await guildsResp.json();
+                    
+                    // Bitwise mask check: ADMINISTRATOR (0x8) or MANAGE_GUILD (0x20) or Owner
+                    window.userGuilds = guildsData.map(g => {
+                        const permissionsInt = parseInt(g.permissions);
+                        const isAdministrator = (permissionsInt & 0x8) === 0x8;
+                        const isGuildManager = (permissionsInt & 0x20) === 0x20;
+                        const hasManagementPerms = isAdministrator || isGuildManager || g.owner;
+                        
+                        return {
+                            id: g.id,
+                            name: g.name,
+                            icon: g.icon ? `https://cdn.discordapp.com/icons/${g.id}/${g.icon}.png` : null,
+                            hasPermissions: hasManagementPerms
+                        };
+                    });
+                    
+                    localStorage.setItem('tlc_user_guilds', JSON.stringify(window.userGuilds));
                 }
+
+                await initializeDashboard();
             } catch (err) {
                 hideDiagnostic();
-                console.error("Profile retrieval failed:", err);
-                alert("Direct profile query to Discord blocked by browser policy. Directing to simulated local developer mode.");
+                console.error("handshake failed:", err);
+                alert("CORS profile exchange blocked by policy rules. Switching to local developer bypass.");
                 await bypassWithDemoUser();
             }
         }
 
         async function bypassWithDemoUser() {
-            showDiagnostic("Loading Local Override environment...");
+            showDiagnostic("Initializing bypass profile environment...");
             window.activeUser = {
-                id: "1353160030257549372", // Your genuine ID
+                id: "1353160030257549372", 
                 username: "Developer Override",
                 avatar: "https://cdn.discordapp.com/embed/avatars/1.png",
                 isAuthorizedOwner: true
             };
+            
+            // Dummy bypass guilds
+            window.userGuilds = [
+                { id: "1120019446702678127", name: "TLC Virtual Association", icon: null, hasPermissions: true },
+                { id: "123456789012345678", name: "Genesis Roblox Network", icon: null, hasPermissions: true },
+                { id: "987654321098765432", name: "TFF Support Guild (No Access)", icon: null, hasPermissions: false }
+            ];
+            
+            localStorage.setItem('tlc_active_user', JSON.stringify(window.activeUser));
+            localStorage.setItem('tlc_user_guilds', JSON.stringify(window.userGuilds));
             await initializeDashboard();
         }
 
         async function initializeDashboard() {
-            showDiagnostic("Piping configurations from Gist cloud files...");
+            showDiagnostic("Loading Cloud Storage settings...");
             document.getElementById('login-portal').classList.add('hidden');
             document.getElementById('app-content').classList.remove('hidden');
 
@@ -445,6 +491,14 @@
             document.getElementById('user-name').innerText = window.activeUser.username;
 
             await queryConfigFromDatabase();
+            renderGuildSelector();
+            
+            // Default select first available guild possessing valid management permissions
+            const firstManageableGuild = window.userGuilds.find(g => g.hasPermissions) || window.userGuilds[0];
+            if (firstManageableGuild) {
+                selectGuild(firstManageableGuild.id);
+            }
+
             startMetricPinger();
             startEventLogStreamer();
             switchPage('tickets');
@@ -453,6 +507,7 @@
 
         function logout() {
             localStorage.removeItem('tlc_active_user');
+            localStorage.removeItem('tlc_user_guilds');
             window.location.reload();
         }
 
@@ -468,19 +523,7 @@
                     const ownersList = window.config.owners || [];
                     window.activeUser.isAuthorizedOwner = ownersList.includes(window.activeUser.id) || window.activeUser.id === "1353160030257549372";
 
-                    const ownerOnlyElms = document.querySelectorAll('.owner-only');
-                    const viewerOnlyElms = document.querySelectorAll('.viewer-only');
-                    
-                    if (window.activeUser.isAuthorizedOwner && window.githubToken) {
-                        ownerOnlyElms.forEach(e => e.classList.remove('hidden'));
-                        viewerOnlyElms.forEach(e => e.classList.add('hidden'));
-                        setSyncStatus("synced");
-                    } else {
-                        ownerOnlyElms.forEach(e => e.classList.add('hidden'));
-                        viewerOnlyElms.forEach(e => e.classList.remove('hidden'));
-                        setSyncStatus("viewer");
-                    }
-                    render();
+                    validatePermissions();
                 } else {
                     setSyncStatus("unsaved");
                 }
@@ -490,9 +533,90 @@
             }
         }
 
+        // Render Server/Guild Carousel selection list
+        function renderGuildSelector() {
+            const container = document.getElementById('guild-selector-container');
+            if (!container) return;
+
+            if (window.userGuilds.length === 0) {
+                container.innerHTML = `<p class="text-xs text-zinc-500 italic py-2">No managed guilds found matching credentials.</p>`;
+                return;
+            }
+
+            container.innerHTML = window.userGuilds.map(guild => {
+                const activeBorderClass = window.selectedGuildId === guild.id ? "border-white bg-zinc-card shadow-sm" : "border-zinc-custom hover:border-zinc-500";
+                const initials = guild.name.split(' ').map(n => n[0]).join('').slice(0, 3).toUpperCase();
+                
+                // Dim down non-permissive servers
+                const opacityClass = guild.hasPermissions ? "opacity-100" : "opacity-45 cursor-not-allowed";
+                const permissionTag = guild.hasPermissions ? "" : `<span class="absolute -top-1 -right-1 text-[8px] bg-zinc-800 border border-zinc-700 text-zinc-500 px-1 py-0.2 rounded font-mono font-bold">LOCKED</span>`;
+
+                return `
+                    <button onclick="${guild.hasPermissions ? `selectGuild('${guild.id}')` : `alert('🔒 You do not possess Managerial roles or Administrator permissions in this server context.')`}" 
+                            class="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl border text-left text-xs transition duration-200 relative ${activeBorderClass} ${opacityClass}">
+                        ${guild.icon ? 
+                            `<img src="${guild.icon}" class="w-6 h-6 rounded-lg bg-zinc-custom" alt="">` : 
+                            `<div class="w-6 h-6 rounded-lg bg-white text-black font-extrabold flex items-center justify-center text-[9px]">${initials}</div>`
+                        }
+                        <div class="max-w-[120px] truncate">
+                            <span class="font-bold block tracking-tight text-white">${guild.name}</span>
+                            <span class="text-[8px] text-zinc-500 font-bold block uppercase">${guild.hasPermissions ? "Bot Ready" : "Read-Only"}</span>
+                        </div>
+                        ${permissionTag}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        // Guild specific variables activation
+        function selectGuild(guildId) {
+            window.selectedGuildId = guildId;
+            renderGuildSelector();
+
+            const guildData = window.userGuilds.find(g => g.id === guildId);
+            if (guildData) {
+                document.getElementById('target-guild-desc').innerText = `Editing active variables for: ${guildData.name}`;
+            }
+
+            // Initialize guild space structure within global database file if it doesn't exist
+            if (!window.config.guilds) window.config.guilds = {};
+            if (!window.config.guilds[guildId]) {
+                // Seed with current top-level fallback defaults
+                window.config.guilds[guildId] = {
+                    tickets: { ...window.config.tickets },
+                    welcome: { ...window.config.welcome }
+                };
+            }
+
+            validatePermissions();
+            render();
+        }
+
+        // Live role permissions toggle
+        function validatePermissions() {
+            const guildId = window.selectedGuildId;
+            const targetGuild = window.userGuilds.find(g => g.id === guildId);
+            
+            // Permitted if: Global Bot Owner OR possesses guild administrator/manager privileges
+            const isAuthorized = window.activeUser.isAuthorizedOwner || (targetGuild && targetGuild.hasPermissions);
+
+            const ownerOnlyElms = document.querySelectorAll('.owner-only');
+            const viewerOnlyElms = document.querySelectorAll('.viewer-only');
+
+            if (isAuthorized && window.githubToken) {
+                ownerOnlyElms.forEach(e => e.classList.remove('hidden'));
+                viewerOnlyElms.forEach(e => e.classList.add('hidden'));
+                setSyncStatus("synced");
+            } else {
+                ownerOnlyElms.forEach(e => e.classList.add('hidden'));
+                viewerOnlyElms.forEach(e => e.classList.remove('hidden'));
+                setSyncStatus("viewer");
+            }
+        }
+
         async function syncToDatabase() {
             if (!window.githubToken) {
-                alert("❌ Connection access token is missing. Click the settings gear icon to provide a write token.");
+                alert("❌ Missing connection secret token. Map your access credentials in settings.");
                 openApiSettings();
                 return;
             }
@@ -516,13 +640,13 @@
 
                 if (response.ok) {
                     setSyncStatus("synced");
-                    alert("✅ Success: Settings saved to Gist storage! Bot will fetch changes automatically within 60 seconds.");
+                    alert("✅ Success: Changes safely pushed to your Cloud storage!");
                 } else {
-                    alert("❌ Write Failure: Please verify your personal access token permissions.");
+                    alert("❌ Update failure. Make sure the saved token has the Gist write scope.");
                     setSyncStatus("unsaved");
                 }
             } catch (err) {
-                alert("❌ Connection Error: GitHub API unreachable.");
+                alert("❌ Connection Error: Could not reach server.");
                 setSyncStatus("unsaved");
             }
         }
@@ -541,17 +665,25 @@
             render();
         }
 
+        // Render configuration views based on selected guild
         function render() {
             const currentTab = document.getElementById('page-tickets').classList.contains('hidden') ? 'status' : 'tickets';
+            const guildId = window.selectedGuildId;
             
+            // Access active scoped guild config space
+            const guildConfig = window.config.guilds?.[guildId] || {
+                tickets: window.config.tickets || {},
+                welcome: window.config.welcome || {}
+            };
+
             if (currentTab === 'tickets') {
                 const container = document.getElementById('categories-container');
-                const ticketsObj = window.config.tickets || {};
+                const ticketsObj = guildConfig.tickets || {};
                 
                 container.innerHTML = `
-                    <div class="bg-zinc-dark p-6 rounded-2xl border border-zinc-custom space-y-4">
+                    <div class="bg-zinc-dark p-6 rounded-2xl border border-zinc-custom space-y-4 animate-fade-in">
                         <div class="flex items-center justify-between border-b border-zinc-custom pb-3">
-                            <h4 class="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Environment Constants</h4>
+                            <h4 class="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Scoped Guild Settings Constants</h4>
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div>
@@ -571,7 +703,7 @@
                 `;
 
                 const botObj = window.config.bot || {};
-                const welcomeObj = window.config.welcome || {};
+                const welcomeObj = guildConfig.welcome || {};
 
                 document.getElementById('discord-title').innerText = welcomeObj.title || "TLC | Support centre";
                 document.getElementById('discord-desc').innerText = welcomeObj.description || "Initialize support systems.";
@@ -593,11 +725,19 @@
             lucide.createIcons();
         }
 
+        // Writes specifically to current target guild inside root state
         function updateEmbedValue(key, val) {
-            if (!window.config.welcome) window.config.welcome = {};
-            if (key === 'title') window.config.welcome.title = val;
-            if (key === 'color') window.config.welcome.color = parseInt(val) || 3447003;
-            if (key === 'placeholder') window.config.welcome.description = val;
+            const guildId = window.selectedGuildId;
+            if (!window.config.guilds) window.config.guilds = {};
+            if (!window.config.guilds[guildId]) window.config.guilds[guildId] = {};
+            if (!window.config.guilds[guildId].welcome) window.config.guilds[guildId].welcome = {};
+
+            const welcomeObj = window.config.guilds[guildId].welcome;
+
+            if (key === 'title') welcomeObj.title = val;
+            if (key === 'color') welcomeObj.color = parseInt(val) || 3447003;
+            if (key === 'placeholder') welcomeObj.description = val;
+
             setSyncStatus("unsaved");
             render();
         }

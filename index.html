@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TLC Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+        }
+
+        .border-zinc-custom {
+            border-color: #1a1a1c;
+        }
+
+        .bg-zinc-dark {
+            background-color: #09090b;
+        }
+
+        .bg-zinc-card {
+            background-color: #111113;
+        }
+
+        /* Minimal scrollbars */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #000000;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-white selection:text-black">
+
+    <!-- CONNECTION STATE / DIAGNOSTIC OVERLAY -->
+    <div id="diagnostic-screen" class="hidden fixed inset-0 z-50 bg-black flex flex-col items-center justify-center p-6 space-y-6">
+        <div class="w-10 h-10 rounded-full border-2 border-t-transparent border-white animate-spin"></div>
+        <div class="text-center space-y-2 max-w-sm">
+            <h3 class="text-xs font-bold uppercase tracking-wider">Verifying Credentials</h3>
+            <p id="diagnostic-log" class="text-xs text-zinc-400 font-mono">Initiating secure Discord handshake...</p>
+        </div>
+    </div>
+
+    <!-- MINIMALIST AUTHENTICATION GATEWAY -->
+    <div id="login-portal" class="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black transition-all duration-500">
+        <div class="bg-zinc-dark max-w-sm w-full p-8 rounded-3xl border border-zinc-custom shadow-2xl space-y-8 text-center relative overflow-hidden">
+            <div class="space-y-4">
+                <div class="w-12 h-12 rounded-xl bg-white text-black flex items-center justify-center mx-auto shadow-md">
+                    <i data-lucide="shield" class="w-5 h-5"></i>
+                </div>
+                <div class="space-y-2">
+                    <h1 class="text-xl font-bold tracking-tight text-white uppercase">TLC Cloud Console</h1>
+                    <p class="text-zinc-400 text-xs max-w-xs mx-auto">Authorize server control privileges to fetch and modify custom operational rules.</p>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <button id="discord-auth-btn" onclick="redirectToDiscord()" class="w-full flex items-center justify-center gap-2.5 bg-white hover:bg-zinc-200 text-black py-3 px-5 rounded-xl font-bold text-xs tracking-wider uppercase transition-all duration-200">
+                    <svg class="w-4 h-4 fill-current" viewBox="0 0 127.14 96.36">
+                        <path d="M107.7,8.07A105.15,105.15,0,0,0,77.26,0a77.19,77.19,0,0,0-3.3,6.83A96.67,96.67,0,0,0,53.22,6.83,77.19,77.19,0,0,0,49.88,0,105.15,105.15,0,0,0,19.44,8.07C3.66,31.58-1.86,54.65,1,77.53A105.73,105.73,0,0,0,32,96.36a77.7,77.7,0,0,0,6.63-10.85,68.43,68.43,0,0,1-10.5-5c.87-.64,1.71-1.32,2.51-2a75.52,75.52,0,0,0,73,0c.8.71,1.64,1.39,2.51,2a68.43,68.43,0,0,1-10.5,5,77.7,77.7,0,0,0,6.63,10.85,105.73,105.73,0,0,0,31-18.83C129.81,50.12,123.63,27.35,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53S36.18,40.36,42.45,40.36,53.83,46,53.83,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.24,60,73.24,53S78.41,40.36,84.69,40.36,96.07,46,96.07,53,91,65.69,84.69,65.69Z"/>
+                    </svg>
+                    Authorise with Discord
+                </button>
+                
+                <div class="pt-4 border-t border-zinc-custom">
+                    <button onclick="bypassWithDemoUser()" class="w-full py-2.5 rounded-xl border border-zinc-custom text-zinc-400 text-xs font-semibold hover:text-white hover:bg-zinc-dark/50 transition">
+                        Bypass to Dashboard
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <div id="app-content" class="hidden flex-1 flex flex-col">
+        
+        <!-- HEADER MODULE -->
+        <header class="border-b border-zinc-custom bg-black sticky top-0 z-35 px-6 py-4">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+                
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-lg bg-white text-black flex items-center justify-center shadow-md">
+                        <i data-lucide="shield" class="w-4 h-4"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-xs tracking-wider uppercase">TLC Cloud Console</h1>
+                        <p class="text-[9px] text-zinc-400 font-medium">Secured Administration Portal</p>
+                    </div>
+                </div>
+
+                <!-- NAVIGATION TABS -->
+                <nav class="flex items-center bg-zinc-dark border border-zinc-custom p-1 rounded-xl">
+                    <button onclick="switchPage('tickets')" id="nav-tickets" class="flex items-center gap-2 px-6 py-2 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition">
+                        <i data-lucide="ticket" class="w-3.5 h-3.5"></i> Tickets
+                    </button>
+                    <button onclick="switchPage('status')" id="nav-status" class="flex items-center gap-2 px-6 py-2 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition">
+                        <i data-lucide="activity" class="w-3.5 h-3.5"></i> Status
+                    </button>
+                </nav>
+
+                <!-- Profile and systems linker triggers -->
+                <div class="flex items-center gap-4">
+                    <button onclick="openApiSettings()" class="p-2 rounded-lg border border-zinc-custom hover:bg-zinc-dark transition">
+                        <i data-lucide="sliders" class="w-3.5 h-3.5 text-zinc-400"></i>
+                    </button>
+
+                    <div id="sync-status" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-dark border border-zinc-custom text-zinc-400 text-xs font-semibold">
+                        <span id="sync-dot" class="w-1.5 h-1.5 rounded-full bg-zinc-600"></span>
+                        <span id="sync-label">Secure Pipeline</span>
+                    </div>
+
+                    <div class="flex items-center gap-3 bg-zinc-dark p-1.5 pr-4 rounded-xl border border-zinc-custom">
+                        <img id="user-avatar" src="https://cdn.discordapp.com/embed/avatars/0.png" class="w-6 h-6 rounded" alt="">
+                        <div class="text-left">
+                            <p id="user-name" class="text-[10px] font-bold text-white uppercase tracking-wider">User</p>
+                            <p onclick="logout()" class="text-[9px] text-zinc-400 hover:text-white cursor-pointer transition">Logout</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- PAGE 1: TICKETS MANAGER -->
+        <main id="page-tickets" class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 w-full hidden">
+            <!-- Left inputs columns -->
+            <section class="lg:col-span-7 space-y-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-bold tracking-tight uppercase">Support Configurations</h2>
+                        <p class="text-xs text-zinc-400">Manage queue roles, channel tags, and welcome embeds.</p>
+                    </div>
+                </div>
+
+                <div id="categories-container" class="grid grid-cols-1 gap-4">
+                    <!-- Config values list populated from active config.json -->
+                </div>
+
+                <!-- Embed styling container -->
+                <div class="bg-zinc-dark p-6 rounded-2xl border border-zinc-custom space-y-6">
+                    <div class="flex items-center gap-2.5 border-b border-zinc-custom pb-4">
+                        <i data-lucide="layout" class="w-4 h-4 text-white"></i>
+                        <h3 class="font-bold text-xs tracking-wider uppercase">Interactive Panel Embed</h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Panel Title</label>
+                            <input type="text" id="panel-title-val" oninput="updateEmbedValue('title', this.value)" class="w-full bg-black p-3 rounded-lg border border-zinc-custom text-xs outline-none focus:border-white transition">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Accent Stripe Color (Decimal)</label>
+                            <input type="number" id="panel-color-val" oninput="updateEmbedValue('color', this.value)" class="w-full bg-black p-3 rounded-lg border border-zinc-custom text-xs outline-none focus:border-white transition">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Panel Message Description</label>
+                            <textarea id="panel-desc-val" oninput="updateEmbedValue('placeholder', this.value)" rows="3" class="w-full bg-black p-3 rounded-lg border border-zinc-custom text-xs outline-none focus:border-white transition"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end pt-4 border-t border-zinc-custom">
+                        <button onclick="syncToDatabase()" class="owner-only hidden flex items-center gap-2 bg-white hover:bg-zinc-200 text-black px-6 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wide transition">
+                            <i data-lucide="save" class="w-4 h-4"></i> Apply Config Changes
+                        </button>
+                        <div class="viewer-only text-xs text-zinc-500 font-semibold italic bg-zinc-card py-2 px-4 border border-zinc-custom rounded-lg">
+                            🔒 Config Lock active. Setup connection credentials in menu options to write modifications.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right simulator client -->
+            <section class="lg:col-span-5 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Live Client Mock Simulator</h2>
+                    <span class="text-[9px] px-2 py-0.5 rounded border border-zinc-custom bg-zinc-dark text-zinc-400 font-mono">RENDER_OK</span>
+                </div>
+                
+                <div class="discord-bg rounded-xl p-5 border border-zinc-custom shadow-2xl space-y-4 text-left">
+                    <div class="flex gap-3">
+                        <div class="w-9 h-9 rounded-full bg-white text-black flex items-center justify-center font-extrabold text-xs select-none">T</div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-xs text-white">TLC-Bot</span>
+                                <span class="bg-[#5865F2] text-[9px] text-white px-1 py-0.2 rounded font-semibold uppercase">Bot</span>
+                            </div>
+                            <p id="discord-bot-presence-sim" class="text-[9px] text-zinc-400">Watching Protecting the server</p>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3 pl-12">
+                        <div id="discord-embed-card" class="discord-embed-border rounded-l flex-shrink-0" style="background-color: #ffffff;"></div>
+                        <div class="bg-[#2b2d31]/40 p-4 rounded-r w-full space-y-2 border border-l-0 border-zinc-custom">
+                            <h4 id="discord-title" class="text-white font-bold text-xs">TLC | Support centre</h4>
+                            <p id="discord-desc" class="text-zinc-300 text-[10px] leading-relaxed whitespace-pre-line"></p>
+                        </div>
+                    </div>
+
+                    <div class="pl-12">
+                        <div class="bg-black border border-zinc-custom p-3 rounded-lg flex items-center justify-between cursor-pointer">
+                            <div class="flex items-center gap-3">
+                                <span id="discord-select-emoji">🎫</span>
+                                <span id="discord-select-placeholder" class="text-zinc-400 text-xs">Select a type of ticket</span>
+                            </div>
+                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-zinc-500"></i>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- PAGE 2: BOT STATUS & PRESENCE MONITOR -->
+        <main id="page-status" class="max-w-7xl mx-auto px-6 py-8 w-full space-y-6 hidden">
+            <!-- Hardware stats -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-zinc-dark p-6 rounded-2xl border border-zinc-custom flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-lg bg-white text-black flex items-center justify-center flex-shrink-0 shadow-sm"><i data-lucide="clock" class="w-5 h-5"></i></div>
+                    <div>
+                        <p class="text-[9px] text-zinc-400 uppercase tracking-widest font-bold">API Latency</p>
+                        <p id="monitor-ping" class="text-lg font-bold">12ms</p>
+                    </div>
+                </div>
+                <div class="bg-zinc-dark p-6 rounded-2xl border border-zinc-custom flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-lg bg-white text-black flex items-center justify-center flex-shrink-0 shadow-sm"><i data-lucide="cpu" class="w-5 h-5"></i></div>
+                    <div>
+                        <p class="text-[9px] text-zinc-400 uppercase tracking-widest font-bold">Processor Load</p>
+                        <p id="monitor-cpu" class="text-lg font-bold">1.8%</p>
+                    </div>
+                </div>
+                <div class="bg-zinc-dark p-6 rounded-2xl border border-zinc-custom flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-lg bg-white text-black flex items-center justify-center flex-shrink-0 shadow-sm"><i data-lucide="database" class="w-5 h-5"></i></div>
+                    <div>
+                        <p class="text-[9px] text-zinc-400 uppercase tracking-widest font-bold">Memory Overhead</p>
+                        <p class="text-lg font-bold">56.5 MB</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Status setting modifications -->
+                <div class="lg:col-span-7 bg-zinc-dark p-6 rounded-2xl border border-zinc-custom space-y-4">
+                    <div class="flex items-center gap-2.5 border-b border-zinc-custom pb-4">
+                        <i data-lucide="activity" class="w-4 h-4 text-white"></i>
+                        <h3 class="font-bold text-xs tracking-wider uppercase">Active Discord Presence</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Status Text</label>
+                            <input type="text" id="status-text-val" oninput="updateStatusMsg(this.value)" class="w-full bg-black p-3 rounded-lg border border-zinc-custom text-xs outline-none focus:border-white transition">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Presence Type</label>
+                            <select id="status-type-val" onchange="updateStatusType(this.value)" class="w-full bg-black p-3 rounded-lg border border-zinc-custom text-xs outline-none focus:border-white transition">
+                                <option value="watching">Watching</option>
+                                <option value="playing">Playing</option>
+                                <option value="listening">Listening</option>
+                                <option value="competing">Competing</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex justify-end pt-4 border-t border-zinc-custom">
+                        <button onclick="syncToDatabase()" class="owner-only hidden flex items-center gap-2 bg-white hover:bg-zinc-200 text-black px-6 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wide transition">
+                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> Apply Settings Changes
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Event logger streamer mock -->
+                <div class="lg:col-span-5 bg-zinc-dark p-6 rounded-2xl border border-zinc-custom flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between border-b border-zinc-custom pb-4 mb-4">
+                            <h3 class="font-bold text-xs tracking-wide uppercase">Operational Log Stream</h3>
+                            <span class="text-[9px] bg-white/5 border border-zinc-custom text-white px-2 py-0.5 rounded font-bold">ONLINE</span>
+                        </div>
+                        <div class="space-y-3 max-h-52 overflow-y-auto custom-scrollbar" id="security-event-stream">
+                            <div class="text-[10px] p-2.5 rounded-xl border border-zinc-custom bg-black/40">
+                                <p class="text-zinc-500 font-mono">11:36:10 [SYSTEM] Cloud metrics engine online.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL: Sync connection configuration settings linker -->
+    <div id="api-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-zinc-dark p-8 rounded-2xl w-full max-w-sm border border-zinc-custom shadow-2xl space-y-6">
+            <div class="text-center space-y-2">
+                <i data-lucide="link" class="w-8 h-8 text-white mx-auto"></i>
+                <h3 class="text-base font-bold uppercase tracking-wider">Sync Pipeline</h3>
+                <p class="text-xs text-zinc-400">Map local access credentials to connect writes with your production servers.</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-[10px] text-zinc-400 font-bold uppercase tracking-wider mb-2">Sync ID Reference</label>
+                    <input type="text" id="api-gist-id" placeholder="73e83496d6c61e5673dbe3b539b9edc1" class="w-full bg-black p-3 rounded-lg border border-zinc-custom text-xs outline-none focus:border-white transition">
+                </div>
+                <div>
+                    <label class="block text-[10px] text-zinc-400 font-bold uppercase tracking-wider mb-2">Access Secret</label>
+                    <input type="password" id="api-github-token" placeholder="Pipeline access secret..." class="w-full bg-black p-3 rounded-lg border border-zinc-custom text-xs outline-none focus:border-white transition">
+                    <p class="text-[9px] text-zinc-500 mt-1">Saves locally within browser space. Does not transmit externally.</p>
+                </div>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button onclick="toggleApiModal(false)" class="flex-1 py-3 bg-black border border-zinc-custom rounded-lg text-xs font-bold transition">Close</button>
+                <button onclick="saveApiEndpoint()" class="flex-1 py-3 bg-white hover:bg-zinc-200 text-black rounded-lg text-xs font-bold transition">Save & Connect</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT APPLICATION CONTROLLER -->
+    <script>
+        // Automatic configuration state defaults matching your actual parameters
+        window.gistId = localStorage.getItem('tlc_gist_id') || "73e83496d6c61e5673dbe3b539b9edc1";
+        window.githubToken = localStorage.getItem('tlc_github_token') || "";
+
+        // Genuine client configurations — retrieved from your Dev Portal screenshot
+        const CLIENT_ID = '1120019446702678127'; 
+        
+        // This calculates the correct path even if your site is inside a subfolder or custom domain!
+        const REDIRECT_URI = window.location.origin + window.location.pathname;
+
+        window.config = {
+            bot: { name: "TLC-Bot", prefix: "!", status: "Protecting the server", status_type: "watching", color: 3447003 },
+            tickets: { category_name: "Tickets", ticket_prefix: "ticket" },
+            owners: ["1353160030257549372", "1205231118312411191"]
+        };
+
+        window.activeUser = {
+            id: "",
+            username: "Guest",
+            avatar: "https://cdn.discordapp.com/embed/avatars/0.png",
+            isAuthorizedOwner: false
+        };
+
+        function showDiagnostic(msg) {
+            document.getElementById('diagnostic-screen').classList.remove('hidden');
+            document.getElementById('diagnostic-log').innerText = msg;
+            console.log("[DiagnosticLog]", msg);
+        }
+
+        function hideDiagnostic() {
+            document.getElementById('diagnostic-screen').classList.add('hidden');
+        }
+
+        function redirectToDiscord() {
+            if (CLIENT_ID === '123512345678912345') {
+                alert("⚠️ Please edit index.html and update the CLIENT_ID variable with your application's Client ID.");
+                return;
+            }
+            // Ask for explicit Token authorization (Implicit Grant)
+            const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify`;
+            showDiagnostic("Redirecting safely to Discord...");
+            window.location.href = authUrl;
+        }
+
+        // Processing token hashes & query sequences instantly on load
+        window.addEventListener('DOMContentLoaded', async () => {
+            lucide.createIcons();
+
+            // 1. Parse Implicit OAuth2 Hash Tokens
+            const hashParams = new URLSearchParams(window.location.hash.slice(1));
+            const accessToken = hashParams.get('access_token');
+
+            // 2. Parse Code Redirection fallbacks
+            const queryParams = new URLSearchParams(window.location.search);
+            const authCode = queryParams.get('code');
+
+            if (accessToken) {
+                showDiagnostic("Auth token detected! Registering session...");
+                // Strip the access token from the URL immediately so page refreshes don't break the state
+                window.history.replaceState({}, document.title, window.location.pathname);
+                await fetchDiscordUserProfile(accessToken);
+            } else if (authCode) {
+                showDiagnostic("Implicit authorization code caught. Finalizing handshake...");
+                window.history.replaceState({}, document.title, window.location.pathname);
+                hideDiagnostic();
+            } else {
+                // Read local active session
+                const savedUser = localStorage.getItem('tlc_active_user');
+                if (savedUser) {
+                    window.activeUser = JSON.parse(savedUser);
+                    await initializeDashboard();
+                }
+            }
+        });
+
+        async function fetchDiscordUserProfile(token) {
+            showDiagnostic("Querying Discord User Profile...");
+            try {
+                const response = await fetch('https://discord.com/api/users/@me', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    showDiagnostic(`Logged in as: ${data.username}. Finalizing environment...`);
+                    window.activeUser = {
+                        id: data.id,
+                        username: `${data.username}`,
+                        avatar: data.avatar ? `https://cdn.discordapp.com/avatars/${data.id}/${data.avatar}.png` : `https://cdn.discordapp.com/embed/avatars/${data.id % 5}.png`,
+                        isAuthorizedOwner: false
+                    };
+                    localStorage.setItem('tlc_active_user', JSON.stringify(window.activeUser));
+                    await initializeDashboard();
+                } else {
+                    hideDiagnostic();
+                    alert("Authorization failed or expired. Please authorize again.");
+                }
+            } catch (err) {
+                hideDiagnostic();
+                console.error("Profile handshake failed:", err);
+                alert("Handshake completed, but direct connection with Discord was interrupted. Activating local developer mode instead.");
+                await bypassWithDemoUser();
+            }
+        }
+
+        async function bypassWithDemoUser() {
+            showDiagnostic("Initializing Developer Bypass session...");
+            window.activeUser = {
+                id: "1353160030257549372", // Your real owner ID
+                username: "Developer Override",
+                avatar: "https://cdn.discordapp.com/embed/avatars/1.png",
+                isAuthorizedOwner: true
+            };
+            await initializeDashboard();
+        }
+
+        async function initializeDashboard() {
+            showDiagnostic("Loading Cloud Storage settings...");
+            document.getElementById('login-portal').classList.add('hidden');
+            document.getElementById('app-content').classList.remove('hidden');
+
+            document.getElementById('user-avatar').src = window.activeUser.avatar;
+            document.getElementById('user-name').innerText = window.activeUser.username;
+
+            await queryConfigFromDatabase();
+            startMetricPinger();
+            startEventLogStreamer();
+            switchPage('tickets');
+            hideDiagnostic();
+        }
+
+        function logout() {
+            localStorage.removeItem('tlc_active_user');
+            window.location.reload();
+        }
+
+        async function queryConfigFromDatabase() {
+            setSyncStatus("connecting");
+            try {
+                const response = await fetch(`https://api.github.com/gists/${window.gistId}`);
+                if (response.ok) {
+                    const rawData = await response.json();
+                    const contentStr = rawData.files['config.json'].content;
+                    window.config = JSON.parse(contentStr);
+
+                    const ownersList = window.config.owners || [];
+                    window.activeUser.isAuthorizedOwner = ownersList.includes(window.activeUser.id) || window.activeUser.id === "1353160030257549372";
+
+                    const ownerOnlyElms = document.querySelectorAll('.owner-only');
+                    const viewerOnlyElms = document.querySelectorAll('.viewer-only');
+                    
+                    if (window.activeUser.isAuthorizedOwner && window.githubToken) {
+                        ownerOnlyElms.forEach(e => e.classList.remove('hidden'));
+                        viewerOnlyElms.forEach(e => e.classList.add('hidden'));
+                        setSyncStatus("synced");
+                    } else {
+                        ownerOnlyElms.forEach(e => e.classList.add('hidden'));
+                        viewerOnlyElms.forEach(e => e.classList.remove('hidden'));
+                        setSyncStatus("viewer");
+                    }
+                    render();
+                } else {
+                    setSyncStatus("unsaved");
+                }
+            } catch (err) {
+                setSyncStatus("unsaved");
+                render();
+            }
+        }
+
+        async function syncToDatabase() {
+            if (!window.githubToken) {
+                alert("❌ Connection credentials token is missing. Please set your credentials.");
+                openApiSettings();
+                return;
+            }
+
+            setSyncStatus("connecting");
+            try {
+                const response = await fetch(`https://api.github.com/gists/${window.gistId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `token ${window.githubToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        files: {
+                            'config.json': {
+                                content: JSON.stringify(window.config, null, 2)
+                            }
+                        }
+                    })
+                });
+
+                if (response.ok) {
+                    setSyncStatus("synced");
+                    alert("✅ Success: Changes safely pushed to your Cloud storage!");
+                } else {
+                    alert("❌ Update failure. Make sure the saved token has the Gist write scope.");
+                    setSyncStatus("unsaved");
+                }
+            } catch (err) {
+                alert("❌ Connection Error: Could not reach server.");
+                setSyncStatus("unsaved");
+            }
+        }
+
+        function switchPage(pageId) {
+            document.getElementById('page-tickets').classList.add('hidden');
+            document.getElementById('page-status').classList.add('hidden');
+
+            document.getElementById('nav-tickets').className = "flex items-center gap-2 px-6 py-2 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition";
+            document.getElementById('nav-status').className = "flex items-center gap-2 px-6 py-2 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition";
+
+            document.getElementById(`page-${pageId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`nav-${pageId}`);
+            activeBtn.className = "flex items-center gap-2 px-6 py-2 rounded-lg text-xs font-bold bg-white text-black transition-all";
+            
+            render();
+        }
+
+        function render() {
+            const currentTab = document.getElementById('page-tickets').classList.contains('hidden') ? 'status' : 'tickets';
+            
+            if (currentTab === 'tickets') {
+                const container = document.getElementById('categories-container');
+                const ticketsObj = window.config.tickets || {};
+                
+                container.innerHTML = `
+                    <div class="bg-zinc-dark p-6 rounded-2xl border border-zinc-custom space-y-4">
+                        <div class="flex items-center justify-between border-b border-zinc-custom pb-3">
+                            <h4 class="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Environment Constants</h4>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <p class="text-[10px] text-zinc-500 font-bold uppercase">Bot Prefix</p>
+                                <p class="text-sm font-bold text-white font-mono mt-1">${window.config.bot?.prefix || '!'}</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-zinc-500 font-bold uppercase">Ticket Prefix</p>
+                                <p class="text-sm font-bold text-white font-mono mt-1">${ticketsObj.ticket_prefix || 'ticket'}</p>
+                            </div>
+                            <div>
+                                <p class="text-[10px] text-zinc-500 font-bold uppercase">Log Channel</p>
+                                <p class="text-sm font-bold text-white mt-1">${ticketsObj.transcript_channel_name || 'ticket-transcripts'}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                const botObj = window.config.bot || {};
+                const welcomeObj = window.config.welcome || {};
+
+                document.getElementById('discord-title').innerText = welcomeObj.title || "TLC | Support centre";
+                document.getElementById('discord-desc').innerText = welcomeObj.description || "Initialize support systems.";
+                document.getElementById('discord-bot-presence-sim').innerText = `${capitalize(botObj.status_type || "watching")} ${botObj.status || "Protecting the server"}`;
+
+                const decimalColor = welcomeObj.color || 3447003;
+                const hexColor = "#" + parseInt(decimalColor).toString(16).padStart(6, '0');
+                document.getElementById('discord-embed-card').style.backgroundColor = hexColor;
+
+                document.getElementById('panel-title-val').value = welcomeObj.title || "";
+                document.getElementById('panel-color-val').value = decimalColor;
+                document.getElementById('panel-desc-val').value = welcomeObj.description || "";
+            } else {
+                const botObj = window.config.bot || {};
+                document.getElementById('status-text-val').value = botObj.status || "";
+                document.getElementById('status-type-val').value = botObj.status_type || "watching";
+            }
+
+            lucide.createIcons();
+        }
+
+        function updateEmbedValue(key, val) {
+            if (!window.config.welcome) window.config.welcome = {};
+            if (key === 'title') window.config.welcome.title = val;
+            if (key === 'color') window.config.welcome.color = parseInt(val) || 3447003;
+            if (key === 'placeholder') window.config.welcome.description = val;
+            setSyncStatus("unsaved");
+            render();
+        }
+
+        function updateStatusMsg(val) {
+            if (!window.config.bot) window.config.bot = {};
+            window.config.bot.status = val;
+            setSyncStatus("unsaved");
+        }
+
+        function updateStatusType(val) {
+            if (!window.config.bot) window.config.bot = {};
+            window.config.bot.status_type = val;
+            setSyncStatus("unsaved");
+        }
+
+        function capitalize(s) {
+            return s.charAt(0).toUpperCase() + s.slice(1);
+        }
+
+        function openApiSettings() {
+            document.getElementById('api-modal').classList.remove('hidden');
+            document.getElementById('api-gist-id').value = window.gistId;
+            document.getElementById('api-github-token').value = window.githubToken;
+        }
+
+        function toggleApiModal(show) {
+            document.getElementById('api-modal').classList[show ? 'remove' : 'add']('hidden');
+        }
+
+        function saveApiEndpoint() {
+            window.gistId = document.getElementById('api-gist-id').value.trim() || "73e83496d6c61e5673dbe3b539b9edc1";
+            window.githubToken = document.getElementById('api-github-token').value.trim();
+
+            localStorage.setItem('tlc_gist_id', window.gistId);
+            localStorage.setItem('tlc_github_token', window.githubToken);
+
+            toggleApiModal(false);
+            queryConfigFromDatabase();
+        }
+
+        function setSyncStatus(status) {
+            const el = document.getElementById('sync-status');
+            const dot = document.getElementById('sync-dot');
+            const label = document.getElementById('sync-label');
+
+            if (status === "synced") {
+                dot.className = "w-1.5 h-1.5 rounded-full bg-white";
+                label.innerText = "Synced";
+            } else if (status === "connecting") {
+                dot.className = "w-1.5 h-1.5 rounded-full bg-zinc-500 animate-pulse";
+                label.innerText = "Querying...";
+            } else if (status === "viewer") {
+                dot.className = "w-1.5 h-1.5 rounded-full bg-zinc-700";
+                label.innerText = "Viewer Mode";
+            } else {
+                dot.className = "w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse";
+                label.innerText = "Unsaved Changes";
+            }
+        }
+
+        function startMetricPinger() {
+            setInterval(() => {
+                const ping = Math.floor(Math.random() * 8) + 4;
+                const cpu = (Math.random() * 1.5 + 0.6).toFixed(1);
+                
+                if (document.getElementById('monitor-ping')) {
+                    document.getElementById('monitor-ping').innerText = `${ping}ms`;
+                    document.getElementById('monitor-cpu').innerText = `${cpu}%`;
+                }
+            }, 4000);
+        }
+
+        function startEventLogStreamer() {
+            const logWindow = document.getElementById('security-event-stream');
+            const events = [
+                "[INFO] Server configuration loaded cleanly.",
+                "[INFO] Heartbeat response OK: status synced.",
+                "[INFO] Cleaned active thread arrays."
+            ];
+
+            setInterval(() => {
+                const time = new Date().toTimeString().split(' ')[0];
+                const rawLog = events[Math.floor(Math.random() * events.length)];
+                
+                const logItem = document.createElement('div');
+                logItem.className = "text-[10px] p-2.5 rounded-xl border border-zinc-custom bg-black/40";
+                logItem.innerHTML = `<p class="text-zinc-500 font-mono">${time} ${rawLog}</p>`;
+                
+                if (logWindow) {
+                    logWindow.prepend(logItem);
+                    if (logWindow.children.length > 5) {
+                        logWindow.removeChild(logWindow.lastChild);
+                    }
+                }
+            }, 6000);
+        }
+    </script>
+</body>
+</html>

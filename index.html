@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TLC Premium Console</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #000000;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Spring-physics and keyframe animations */
+        @keyframes slideInUp {
+            0% { transform: translateY(16px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        @keyframes pulseBorder {
+            0%, 100% { border-color: rgba(255, 255, 255, 0.1); }
+            50% { border-color: rgba(255, 255, 255, 0.4); }
+        }
+        
+        .animate-slide-up {
+            animation: slideInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        .pulse-border-zinc {
+            animation: pulseBorder 3s infinite ease-in-out;
+        }
+
+        /* Custom Scrollbar Styles */
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 4px;
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #000000;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 9999px;
+            transition: background 0.2s;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #52525b;
+        }
+
+        /* Glassmorphic border glow presets */
+        .glass-panel {
+            background: rgba(9, 9, 11, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: border-color 0.3s, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glass-panel:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Active Switch Design */
+        .switch-checkbox:checked + .switch-label {
+            background-color: #ffffff;
+        }
+        .switch-checkbox:checked + .switch-label .switch-dot {
+            transform: translateX(100%);
+            background-color: #000000;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col selection:bg-white selection:text-black antialiased">
+
+    <!-- TOAST NOTIFICATION STACK -->
+    <div id="toast-container" class="fixed top-6 right-6 z-50 flex flex-col gap-3 max-w-sm w-full"></div>
+
+    <!-- CONNECTION STATE / DIAGNOSTIC OVERLAY -->
+    <div id="diagnostic-screen" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-6 space-y-6">
+        <div class="relative flex items-center justify-center">
+            <div class="absolute w-16 h-16 rounded-full border border-white/10 animate-ping"></div>
+            <div class="w-10 h-10 rounded-full border border-t-transparent border-white animate-spin"></div>
+        </div>
+        <div class="text-center space-y-2 max-w-sm">
+            <h3 class="text-xs font-bold uppercase tracking-widest mono">Establishing Safe Connection</h3>
+            <p id="diagnostic-log" class="text-xs text-zinc-400 font-mono">Running secure Cloud Storage handshake...</p>
+        </div>
+    </div>
+
+    <!-- PREMIUM MONOCHROME GATEWAY -->
+    <div id="login-portal" class="fixed inset-0 z-40 flex items-center justify-center p-4 bg-black transition-all duration-700">
+        <div class="glass-panel max-w-md w-full p-10 rounded-3xl shadow-2xl space-y-8 text-center relative overflow-hidden">
+            <div class="absolute -top-24 -left-24 w-48 h-48 bg-white/5 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-24 -right-24 w-48 h-48 bg-white/5 rounded-full blur-3xl"></div>
+            
+            <div class="space-y-4">
+                <div class="w-14 h-14 rounded-2xl bg-white text-black flex items-center justify-center mx-auto shadow-lg transform hover:rotate-12 transition-transform duration-300">
+                    <i data-lucide="shield" class="w-6 h-6"></i>
+                </div>
+                <div class="space-y-2">
+                    <h1 class="text-2xl font-extrabold tracking-tight text-white uppercase tracking-wider">TLC Cloud Console</h1>
+                    <p class="text-zinc-400 text-xs max-w-xs mx-auto font-medium leading-relaxed">Connect to the administrator dashboard to customize interactive modules and view server metrics.</p>
+                </div>
+            </div>
+
+            <div class="space-y-3 pt-4">
+                <button id="discord-auth-btn" onclick="redirectToDiscord()" class="w-full flex items-center justify-center gap-3 bg-white hover:bg-zinc-200 text-black py-3.5 px-6 rounded-xl font-bold text-xs tracking-wider uppercase transition-all duration-300 transform active:scale-95 shadow-md">
+                    <svg class="w-4.5 h-4.5 fill-current" viewBox="0 0 127.14 96.36">
+                        <path d="M107.7,8.07A105.15,105.15,0,0,0,77.26,0a77.19,77.19,0,0,0-3.3,6.83A96.67,96.67,0,0,0,53.22,6.83,77.19,77.19,0,0,0,49.88,0,105.15,105.15,0,0,0,19.44,8.07C3.66,31.58-1.86,54.65,1,77.53A105.73,105.73,0,0,0,32,96.36a77.7,77.7,0,0,0,6.63-10.85,68.43,68.43,0,0,1-10.5-5c.87-.64,1.71-1.32,2.51-2a75.52,75.52,0,0,0,73,0c.8.71,1.64,1.39,2.51,2a68.43,68.43,0,0,1-10.5,5,77.7,77.7,0,0,0,6.63,10.85,105.73,105.73,0,0,0,31-18.83C129.81,50.12,123.63,27.35,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53S36.18,40.36,42.45,40.36,53.83,46,53.83,53,48.72,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.24,60,73.24,53S78.41,40.36,84.69,40.36,96.07,46,96.07,53,91,65.69,84.69,65.69Z"/>
+                    </svg>
+                    Authorise with Discord
+                </button>
+                
+                <div class="pt-4 border-t border-zinc-custom">
+                    <button onclick="bypassWithDemoUser()" class="w-full py-2.5 rounded-xl border border-zinc-custom text-zinc-400 text-xs font-semibold hover:text-white hover:bg-zinc-dark/50 transition duration-300">
+                        Bypass to Sandbox Mode
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD CONTENT -->
+    <div id="app-content" class="hidden flex-1 flex flex-col">
+        
+        <!-- HEADER MODULE -->
+        <header class="border-b border-zinc-custom bg-black/95 sticky top-0 z-30 px-6 py-4 backdrop-blur-md">
+            <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+                
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-white text-black flex items-center justify-center shadow-md">
+                        <i data-lucide="shield" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-extrabold text-sm tracking-widest uppercase">TLC Cloud Console</h1>
+                        <p class="text-[9px] text-zinc-400 font-semibold font-mono uppercase tracking-widest">Secured Enterprise Node</p>
+                    </div>
+                </div>
+
+                <!-- NAVIGATION TABS -->
+                <nav class="flex items-center bg-zinc-dark border border-zinc-custom p-1 rounded-xl">
+                    <button onclick="switchPage('tickets')" id="nav-tickets" class="flex items-center gap-2 px-6 py-2 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition duration-200">
+                        <i data-lucide="ticket" class="w-3.5 h-3.5"></i> Configurations
+                    </button>
+                    <button onclick="switchPage('status')" id="nav-status" class="flex items-center gap-2 px-6 py-2 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition duration-200">
+                        <i data-lucide="activity" class="w-3.5 h-3.5"></i> System Telemetry
+                    </button>
+                </nav>
+
+                <!-- Profile and system settings triggers -->
+                <div class="flex items-center gap-3">
+                    <button onclick="openApiSettings()" class="p-2.5 rounded-xl border border-zinc-custom hover:bg-zinc-dark transition duration-200" title="Connection Settings">
+                        <i data-lucide="sliders" class="w-4 h-4 text-zinc-400 hover:text-white transition"></i>
+                    </button>
+
+                    <div id="sync-status" class="flex items-center gap-2 px-3 py-2 rounded-xl bg-zinc-dark border border-zinc-custom text-zinc-400 text-xs font-semibold">
+                        <span id="sync-dot" class="w-1.5 h-1.5 rounded-full bg-zinc-600 animate-pulse"></span>
+                        <span id="sync-label" class="text-[9px] uppercase font-bold tracking-wider font-mono">Connecting...</span>
+                    </div>
+
+                    <div class="flex items-center gap-3 bg-zinc-dark p-1.5 pr-4 rounded-xl border border-zinc-custom">
+                        <img id="user-avatar" src="https://cdn.discordapp.com/embed/avatars/0.png" class="w-7 h-7 rounded-lg" alt="">
+                        <div class="text-left">
+                            <p id="user-name" class="text-[10px] font-bold text-white uppercase tracking-wider">User</p>
+                            <p onclick="logout()" class="text-[9px] text-zinc-500 hover:text-white cursor-pointer transition">Logout</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- GUILD SLIDER BANNER -->
+        <section class="border-b border-zinc-custom bg-black/50 py-4 px-6 overflow-hidden">
+            <div class="max-w-7xl mx-auto space-y-2">
+                <p class="text-[9px] text-zinc-500 font-bold uppercase tracking-widest font-mono">Select Target Server Context</p>
+                <div id="guild-selector-container" class="flex items-center gap-3 overflow-x-auto py-1 custom-scrollbar">
+                    <!-- Loaded dynamically via Discord User Guilds endpoint -->
+                </div>
+            </div>
+        </section>
+
+        <!-- PAGE 1: CONFIGURATION MANAGER -->
+        <main id="page-tickets" class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 w-full hidden animate-slide-up">
+            <!-- Left inputs columns -->
+            <section class="lg:col-span-7 space-y-6">
+                <div>
+                    <h2 class="text-xl font-extrabold tracking-tight uppercase">Support & Server Customization</h2>
+                    <p id="target-guild-desc" class="text-xs text-zinc-400 mt-1">Manage server modules, tickets, anti-spam configurations, and custom logs.</p>
+                </div>
+
+                <!-- Sub-tabs within Configurations -->
+                <div class="flex border-b border-zinc-custom gap-4 pb-1">
+                    <button onclick="switchSubConfigTab('tickets-fields')" id="subtab-tickets-fields" class="subconfig-tab py-2 text-xs font-bold border-b-2 border-white text-white transition-all">Support & Tickets</button>
+                    <button onclick="switchSubConfigTab('welcome-fields')" id="subtab-welcome-fields" class="subconfig-tab py-2 text-xs font-bold text-zinc-500 hover:text-white transition-all">Welcome & Goodbye</button>
+                    <button onclick="switchSubConfigTab('security-fields')" id="subtab-security-fields" class="subconfig-tab py-2 text-xs font-bold text-zinc-500 hover:text-white transition-all">Security Shields</button>
+                </div>
+
+                <!-- SUB TAB CONTENT: TICKETS -->
+                <div id="subtab-content-tickets-fields" class="space-y-6">
+                    <div id="categories-container" class="grid grid-cols-1 gap-4">
+                        <!-- Dynamic values loads here -->
+                    </div>
+
+                    <div class="glass-panel p-6 rounded-2xl border border-zinc-custom space-y-6">
+                        <div class="flex items-center gap-2.5 border-b border-zinc-custom pb-4">
+                            <i data-lucide="layout" class="w-4 h-4 text-white"></i>
+                            <h3 class="font-bold text-xs tracking-wider uppercase">Support Ticket Properties</h3>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Embed Header Title</label>
+                                <input type="text" id="panel-title-val" oninput="updateEmbedValue('title', this.value)" class="w-full bg-black p-3 rounded-xl border border-zinc-custom text-xs outline-none focus:border-white transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Accent Stripe Color (Decimal)</label>
+                                <input type="number" id="panel-color-val" oninput="updateEmbedValue('color', this.value)" class="w-full bg-black p-3 rounded-xl border border-zinc-custom text-xs outline-none focus:border-white transition-all">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Embed Center Message Description</label>
+                                <textarea id="panel-desc-val" oninput="updateEmbedValue('placeholder', this.value)" rows="3" class="w-full bg-black p-3 rounded-xl border border-zinc-custom text-xs outline-none focus:border-white transition-all"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Ticket properties inputs -->
+                        <div class="border-t border-zinc-custom pt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Support Manager Role</label>
+                                <input type="text" id="ticket-role-val" oninput="updateTicketValue('support_role_name', this.value)" class="w-full bg-black p-3 rounded-xl border border-zinc-custom text-xs outline-none focus:border-white transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Transcript Logging Channel</label>
+                                <input type="text" id="ticket-log-val" oninput="updateTicketValue('transcript_channel_name', this.value)" class="w-full bg-black p-3 rounded-xl border border-zinc-custom text-xs outline-none focus:border-white transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Ticket Naming Prefix</label>
+                                <input type="text" id="ticket-prefix-val" oninput="updateTicketValue('ticket_prefix', this.value)" class="w-full bg-black p-3 rounded-xl border border-zinc-custom text-xs outline-none focus:border-white transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Max User Concurrent Open Tickets</label>
+                                <input type="number" id="ticket-limit-val" oninput="updateTicketValue('max_tickets_per_user', this.value)" class="w-full bg-black p-3 rounded-xl border border-zinc-custom text-xs outline-none focus:border-white transition-all">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUB TAB CONTENT: WELCOME MODULE -->
+                <div id="subtab-content-welcome-fields" class="space-y-6 hidden">
+                    <div class="glass-panel p-6 rounded-2xl border border-zinc-custom space-y-6">
+                        <div class="flex items-center justify-between border-b border-zinc-custom pb-4">
+                            <div class="flex items-center gap-2.5">
+                                <i data-lucide="sparkles" class="w-4 h-4 text-white"></i>
+                                <h3 class="font-bold text-xs tracking-wider uppercase">Welcome Greeting Embed</h3>
+                            </div>
+                            <!-- Styled Module Toggle Switch -->
+                            <div class="flex items-center gap-2">
+                                <span class="text-[9px] text-zinc-400 font-bold uppercase">Active Status</span>
+                                <div class="relative inline-block w-10 align-middle select-none">
+                                    <input type="checkbox" id="welcome-enabled" onchange="updateWelcomeValue('enabled', this.checked)" class="switch-checkbox absolute block w-5 h-5 rounded-full bg-zinc-800 border-2 border-zinc-700 appearance-none cursor-pointer transition-transform duration-300 ease-in-out"/>
+                                    <label for="welcome-enabled" class="switch-label block overflow-hidden h-5 rounded-full bg-zinc-800 cursor-pointer transition-colors duration-300">
+                                        <span class="switch-dot block w-5 h-5 rounded-full bg-zinc-600 transition-transform duration-300"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Target Channel Name</label>
+                                <input type="text" id="welcome-channel-val" oninput="updateWelcomeValue('channel_name', this.value)" class="w-full bg-black p-3 rounded-xl border border-zinc-custom text-xs outline-none focus:border-white transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Greeting Header Color (Decimal)</label>
+                                <input type="number" id="welcome-color-val" oninput="updateWelcomeValue('color', this.value)" class="w-full bg-black p-3 rounded-xl border border-zinc-custom text-xs outline-none focus:border-white transition-all">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Greeting Header Title</label>
+                                <input type="text" id="welcome-title-val" oninput="updateWelcomeValue('title', this.value)" class="w-full bg-black p-3 rounded-xl border border-zinc-custom text-xs outline-none focus:border-white transition-all">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Greeting Body Description</label>
+                                <textarea id="welcome-desc-val" oninput="updateWelcomeValue('description', this.value)" rows="3" class="w-full bg-black p-3 rounded-xl border border-zinc-custom text-xs outline-none focus:border-white transition-all"></textarea>
+                                <p class="text-[8px] text-zinc-500 mt-1 uppercase font-mono tracking-widest">Supported placeholders: {user} | {server} | {count}</p>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Greeting Footer Text</label>
+                                <input type="text" id="welcome-footer-val" oninput="updateWelcomeValue('footer', this.value)" class="w-full bg-black p-3 rounded-xl border border-zinc-custom text-xs outline-none focus:border-white transition-all">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUB TAB CONTENT: SECURITY SHIELDS -->
+                <div id="subtab-content-security-fields" class="space-y-6 hidden animate-fade-in">
+                    <!-- Anti-Spam Setup -->
+                    <div class="glass-panel p-6 rounded-2xl border border-zinc-custom space-y-4">
+                        <div class="flex items-center justify-between border-b border-zinc-custom pb-4">
+                            <div class="flex items-center gap-2.5">
+                                <i data-lucide="zap" class="w-4 h-4 text-white"></i>
+                                <h3 class="font-bold text-xs tracking-wider uppercase">Anti-Spam Filter</h3>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[9px] text-zinc-400 font-bold uppercase">Active Status</span>
+                                <div class="relative inline-block w-10 align-middle select-none">
+                                    <input type="checkbox" id="antispam-enabled" onchange="updateSecurityValue('anti_spam', 'enabled', this.checked)" class="switch-checkbox absolute block w-5 h-5 rounded-full bg-zinc-800 border-2 border-zinc-700 appearance-none cursor-pointer transition-transform duration-300 ease-in-out"/>
+                                    <label for="antispam-enabled" class="switch-label block overflow-hidden h-5 rounded-full bg-zinc-800 cursor-pointer transition-colors duration-300">
+                                        <span class="switch-dot block w-5 h-5 rounded-full bg-zinc-600 transition-transform duration-300"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Max Messages Allowed</label>
+                                <input type="number" id="spam-max-msg" oninput="updateSecurityValue('anti_spam', 'max_messages', this.value)" class="w-full bg-black p-3 rounded-xl border border-zinc-custom text-xs outline-none focus:border-white transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Evaluation Window (Sec)</label>
+                                <input type="number" id="spam-window" oninput="updateSecurityValue('anti_spam', 'time_window_seconds', this.value)" class="w-full bg-black p-3 rounded-xl border border-zinc-custom text-xs outline-none focus:border-white transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Punishment Action</label>
+                                <select id="spam-punishment" onchange="updateSecurityValue('anti_spam', 'punishment', this.value)" class="w-full bg-black p-3 rounded-xl border border-zinc-custom text-xs outline-none focus:border-white transition-all">
+                                    <option value="mute">Timeout Mute</option>
+                                    <option value="kick">Kick Member</option>
+                                    <option value="ban">Ban Member</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Anti-Raid Filter -->
+                    <div class="glass-panel p-6 rounded-2xl border border-zinc-custom space-y-4">
+                        <div class="flex items-center justify-between border-b border-zinc-custom pb-4">
+                            <div class="flex items-center gap-2.5">
+                                <i data-lucide="skull" class="w-4 h-4 text-white"></i>
+                                <h3 class="font-bold text-xs tracking-wider uppercase">Anti-Raid Shield</h3>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-[9px] text-zinc-400 font-bold uppercase">Active Status</span>
+                                <div class="relative inline-block w-10 align-middle select-none">
+                                    <input type="checkbox" id="antiraid-enabled" onchange="updateSecurityValue('anti_raid', 'enabled', this.checked)" class="switch-checkbox absolute block w-5 h-5 rounded-full bg-zinc-800 border-2 border-zinc-700 appearance-none cursor-pointer transition-transform duration-300 ease-in-out"/>
+                                    <label for="antiraid-enabled" class="switch-label block overflow-hidden h-5 rounded-full bg-zinc-800 cursor-pointer transition-colors duration-300">
+                                        <span class="switch-dot block w-5 h-5 rounded-full bg-zinc-600 transition-transform duration-300"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Join Surge Threshold</label>
+                                <input type="number" id="raid-threshold" oninput="updateSecurityValue('anti_raid', 'join_threshold', this.value)" class="w-full bg-black p-3 rounded-xl border border-zinc-custom text-xs outline-none focus:border-white transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Join Window (Sec)</label>
+                                <input type="number" id="raid-window" oninput="updateSecurityValue('anti_raid', 'join_window_seconds', this.value)" class="w-full bg-black p-3 rounded-xl border border-zinc-custom text-xs outline-none focus:border-white transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-zinc-400 mb-1.5 font-bold uppercase tracking-wider">Mitigation Response</label>
+                                <select id="raid-action" onchange="updateSecurityValue('anti_raid', 'action', this.value)" class="w-full bg-black p-3 rounded-xl border border-zinc-custom text-xs outline-none focus:border-white transition-all">
+                                    <option value="lockdown">Lockdown Channels</option>
+                                    <option value="alert">Alert Admins Only</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SAVE FLOATER CONTROLS -->
+                <div class="flex justify-end pt-4 border-t border-zinc-custom">
+                    <button onclick="syncToDatabase()" class="owner-only hidden flex items-center gap-2 bg-white hover:bg-zinc-200 text-black px-6 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wide transition duration-300 active:scale-95">
+                        <i data-lucide="save" class="w-4 h-4"></i> Apply Config Changes
+                    </button>
+                    <div class="viewer-only text-xs text-zinc-500 font-semibold italic bg-zinc-card py-2.5 px-4 border border-zinc-custom rounded-lg">
+                        🔒 Write credentials locked. Double click the sliders icon to load authentication keys.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right simulator client -->
+            <section class="lg:col-span-5 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-[10px] font-bold uppercase tracking-widest text-zinc-500 font-mono">Dynamic Render Emulator</h2>
+                    <span id="preview-mode-tag" class="text-[8px] px-2 py-0.5 rounded border border-zinc-custom bg-zinc-dark text-white font-mono uppercase tracking-widest">TICKET PREVIEW</span>
+                </div>
+                
+                <div class="glass-panel rounded-2xl p-6 shadow-2xl space-y-4 text-left border-zinc-custom">
+                    <div class="flex gap-3">
+                        <div class="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center font-extrabold text-sm select-none">T</div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-xs text-white">TLC-Bot</span>
+                                <span class="bg-[#5865F2] text-[8px] text-white px-1.5 py-0.5 rounded font-mono font-bold uppercase tracking-wider">Verified Bot</span>
+                            </div>
+                            <p id="discord-bot-presence-sim" class="text-[9px] text-zinc-400 font-medium">Watching Protecting the server</p>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3 pl-12 animate-fade-in">
+                        <div id="discord-embed-card" class="w-1 rounded-l" style="background-color: #ffffff;"></div>
+                        <div class="bg-[#2b2d31]/35 p-4 rounded-r w-full space-y-2 border border-l-0 border-zinc-custom">
+                            <h4 id="discord-title" class="text-white font-bold text-xs font-mono">TLC | Support centre</h4>
+                            <p id="discord-desc" class="text-zinc-300 text-[10px] leading-relaxed whitespace-pre-line"></p>
+                        </div>
+                    </div>
+
+                    <div id="discord-panel-interactive" class="flex pl-12">
+                        <div class="bg-black border border-zinc-custom p-3 rounded-lg flex items-center justify-between cursor-pointer w-full">
+                            <div class="flex items-center gap-3">
+                                <span id="discord-select-emoji">🎫</span>
+                                <span id="discord-select-placeholder" class="text-zinc-400 text-xs font-semibold">Select a support queue</span>
+                            </div>
+                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-zinc-500"></i>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- PAGE 2: BOT STATUS & PRESENCE MONITOR -->
+        <main id="page-status" class="max-w-7xl mx-auto px-6 py-8 w-full space-y-6 hidden animate-slide-up">
+            
+            <!-- Systems operational alert banner -->
+            <div class="glass-panel p-6 rounded-2xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div id="status-glow" class="w-3 h-3 rounded-full bg-zinc-600 animate-pulse"></div>
+                    <div>
+                        <h3 id="status-title-banner" class="text-sm font-extrabold uppercase tracking-wider text-zinc-400">CONNECTING TO METRICS PIPELINE...</h3>
+                        <p class="text-[10px] text-zinc-500 mt-0.5">Live metrics streaming from VPS host. Updated dynamically every 15 seconds.</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-right">
+                        <span class="text-[9px] text-zinc-500 uppercase font-mono block">Uptime</span>
+                        <span id="uptime-value" class="text-xs font-bold text-white font-mono">00:00:00</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[9px] text-zinc-500 uppercase font-mono block">Last synced</span>
+                        <span id="sync-time-stamp" class="text-xs font-bold text-white font-mono">--:--:--</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard metrics -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="glass-panel p-6 rounded-2xl space-y-2">
+                    <span class="text-[10px] text-zinc-500 uppercase tracking-wider block font-bold">Gateway Latency</span>
+                    <div class="flex items-baseline gap-2">
+                        <span id="gateway-latency" class="text-2xl font-bold font-mono text-white">-- ms</span>
+                        <span id="latency-speed-badge" class="text-[9px] bg-zinc-800 px-1.5 py-0.5 rounded font-mono font-bold text-zinc-400 uppercase">OFFLINE</span>
+                    </div>
+                </div>
+                <div class="glass-panel p-6 rounded-2xl space-y-2">
+                    <span class="text-[10px] text-zinc-500 uppercase tracking-wider block font-bold">Active Guilds</span>
+                    <div class="flex items-baseline gap-2">
+                        <span id="active-guilds-count" class="text-2xl font-bold font-mono text-white">0</span>
+                        <span class="text-[9px] text-zinc-400">Servers</span>
+                    </div>
+                </div>
+                <div class="glass-panel p-6 rounded-2xl space-y-2">
+                    <span class="text-[10px] text-zinc-500 uppercase tracking-wider block font-bold">Total Members</span>
+                    <div class="flex items-baseline gap-2">
+                        <span id="active-users-count" class="text-2xl font-bold font-mono text-white">0</span>
+                        <span class="text-[9px] text-zinc-400">Users</span>
+                    </div>
+                </div>
+                <div class="glass-panel p-6 rounded-2xl space-y-2">
+                    <span class="text-[10px] text-zinc-500 uppercase tracking-wider block font-bold">SQLite Rows Count</span>
+                    <div class="flex items-baseline gap-2">
+                        <span id="sqlite-queries-count" class="text-2xl font-bold font-mono text-white">0</span>
+                        <span class="text-[9px] text-zinc-400 font-mono">Rows</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- System Component Health -->
+                <div class="lg:col-span-5 glass-panel p-6 rounded-2xl space-y-6">
+                    <div>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-white">System Component Health</h4>
+                        <p class="text-[10px] text-zinc-500 mt-0.5">Realtime connections to bot gateway and SQLite transaction nodes.</p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <!-- Bot Engine -->
+                        <div class="flex items-center justify-between p-3.5 rounded-xl border border-zinc-custom bg-black/40">
+                            <div class="flex items-center gap-3">
+                                <span id="health-bot-dot" class="w-1.5 h-1.5 rounded-full bg-zinc-600 animate-pulse"></span>
+                                <span class="text-xs font-medium text-zinc-300">Bot Connection Core</span>
+                            </div>
+                            <span id="health-bot-status" class="text-[10px] font-mono font-bold text-zinc-500 tracking-wider">CONNECTING</span>
+                        </div>
+
+                        <!-- Database -->
+                        <div class="flex items-center justify-between p-3.5 rounded-xl border border-zinc-custom bg-black/40">
+                            <div class="flex items-center gap-3">
+                                <span id="health-db-dot" class="w-1.5 h-1.5 rounded-full bg-zinc-600 animate-pulse"></span>
+                                <span class="text-xs font-medium text-zinc-300">SQLite Database Engine</span>
+                            </div>
+                            <span id="health-db-status" class="text-[10px] font-mono font-bold text-zinc-500 tracking-wider">CONNECTING</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CPU / Memory Allocation panel -->
+                <div class="lg:col-span-7 glass-panel p-6 rounded-2xl space-y-4">
+                    <div>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-white">System Resource Allocation</h4>
+                        <p class="text-[10px] text-zinc-500 mt-0.5">Physical telemetry allocated directly from the VPS container space.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                        <div class="p-4 rounded-xl border border-zinc-custom bg-black/40 space-y-2">
+                            <div class="flex justify-between items-center text-[9px] text-zinc-400 uppercase font-mono tracking-wider">
+                                <span>CPU Allocation</span>
+                                <span id="cpu-num-lbl" class="text-white font-bold">-- %</span>
+                            </div>
+                            <div class="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden">
+                                <div id="cpu-bar-fill" class="bg-white h-full transition-all duration-1000" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="p-4 rounded-xl border border-zinc-custom bg-black/40 space-y-2">
+                            <div class="flex justify-between items-center text-[9px] text-zinc-400 uppercase font-mono tracking-wider">
+                                <span>RAM Allocation</span>
+                                <span id="ram-num-lbl" class="text-white font-bold">-- MB</span>
+                            </div>
+                            <div class="w-full bg-zinc-900 h-1.5 rounded-full overflow-hidden">
+                                <div id="ram-bar-fill" class="bg-white h-full transition-all duration-1000" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System logs list -->
+            <div class="glass-panel p-6 rounded-2xl space-y-4">
+                <div class="flex items-center justify-between border-b border-zinc-custom pb-3">
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-white">Active Operational Logger</h4>
+                    <span class="text-[9px] text-zinc-500 font-mono uppercase tracking-widest">Live telemetry logs</span>
+                </div>
+                <div class="space-y-3" id="system-diagnostic-logs-list">
+                    <div class="p-3 bg-black/50 rounded-lg border border-zinc-custom space-y-1">
+                        <div class="flex justify-between text-[10px] font-bold">
+                            <span class="text-white font-semibold">Verification Pipeline Complete</span>
+                            <span class="text-zinc-500 font-mono">Today</span>
+                        </div>
+                        <p class="text-[10px] text-zinc-400">Initialize the Gist configuration parameters to pull active configurations and connect to telemetry nodes.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL: Sync connection configuration settings linker -->
+    <div id="api-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md hidden flex items-center justify-center p-4 z-50 animate-fade-in">
+        <div class="glass-panel p-8 rounded-2xl w-full max-w-sm border border-zinc-custom shadow-2xl space-y-6">
+            <div class="text-center space-y-2">
+                <div class="w-12 h-12 rounded-xl bg-white text-black flex items-center justify-center mx-auto shadow-md">
+                    <i data-lucide="link" class="w-5 h-5"></i>
+                </div>
+                <h3 class="text-base font-bold uppercase tracking-wider">Secure Cloud Storage Link</h3>
+                <p class="text-xs text-zinc-400 leading-relaxed">Map local access credentials to connect write requests with your production storage files.</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-[10px] text-zinc-400 font-bold uppercase tracking-wider mb-2">Cloud Storage Gist ID</label>
+                    <input type="text" id="api-gist-id" placeholder="73e83496d6c61e5673dbe3b539b9edc1" class="w-full bg-black p-3 rounded-xl border border-zinc-custom text-xs outline-none focus:border-white transition-all">
+                </div>
+                <div>
+                    <label class="block text-[10px] text-zinc-400 font-bold uppercase tracking-wider mb-2">GitHub Secret Token (Gist scope)</label>
+                    <input type="password" id="api-github-token" placeholder="ghp_..." class="w-full bg-black p-3 rounded-xl border border-zinc-custom text-xs outline-none focus:border-white transition-all">
+                    <p class="text-[9px] text-zinc-500 mt-1 uppercase font-mono tracking-widest">Saved locally inside browser memory.</p>
+                </div>
+            </div>
+            <div class="flex gap-3 pt-2">
+                <button onclick="toggleApiModal(false)" class="flex-1 py-3 bg-black border border-zinc-custom rounded-xl text-xs font-bold transition duration-300">Close</button>
+                <button onclick="saveApiEndpoint()" class="flex-1 py-3 bg-white hover:bg-zinc-200 text-black rounded-xl text-xs font-bold transition duration-300">Save & Connect</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT APPLICATION CONTROLLER -->
+    <script>
+        // ==========================================
+        //  TLC CONSOLE - UNIFIED SECURE CONFIGURATION BLOCK
+        // ==========================================
+        const DISCORD_CLIENT_ID = "1502615513652789288"; 
+        const SECURE_SYNC_ID    = "73e83496d6c61e5673dbe3b539b9edc1"; 
+        // ==========================================
+
+        window.gistId = localStorage.getItem('tlc_gist_id') || SECURE_SYNC_ID;
+        window.githubToken = localStorage.getItem('tlc_github_token') || "";
+
+        const REDIRECT_URI = window.location.origin + window.location.pathname;
+
+        // Fallback default state model
+        window.config = {
+            bot: { name: "TLC-Bot", prefix: "!", status: "Protecting the server 🛡️", status_type: "watching" },
+            tickets: { category_name: "Tickets", support_role_name: "Support", ticket_channel_name: "open-a-ticket", max_tickets_per_user: 1, ticket_prefix: "ticket", transcript_channel_name: "ticket-transcripts", ping_support_on_open: true },
+            welcome: { enabled: true, channel_name: "welcome", title: "Welcome!", description: "Hello, {user}!", color: 3447003, footer: "TLC" },
+            owners: ["1353160030257549372", "1205231118312411191"],
+            guilds: {} 
+        };
+
+        window.userGuilds = []; 
+        window.selectedGuildId = ""; 
+        window.activeSubConfigTab = "tickets-fields";
+        
+        window.activeUser = {
+            id: "",
+            username: "Guest",
+            avatar: "https://cdn.discordapp.com/embed/avatars/0.png",
+            isAuthorizedOwner: false
+        };
+
+        // Custom Toast system
+        function showToast(message, type = "info") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = "p-4 rounded-xl bg-zinc-dark border border-zinc-custom text-xs font-semibold shadow-2xl transform translate-x-12 opacity-0 transition-all duration-300 flex items-center gap-3";
+            
+            let icon = "info";
+            let color = "text-white";
+            if (type === "success") { icon = "check-circle"; color = "text-white"; }
+            if (type === "error") { icon = "alert-triangle"; color = "text-red-400"; }
+
+            toast.innerHTML = `
+                <i data-lucide="${icon}" class="w-4 h-4 ${color}"></i>
+                <span>${message}</span>
+            `;
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            // Trigger Animation
+            setTimeout(() => {
+                toast.classList.remove('translate-x-12', 'opacity-0');
+            }, 50);
+
+            // Exit Timer
+            setTimeout(() => {
+                toast.classList.add('translate-x-12', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function showDiagnostic(msg) {
+            document.getElementById('diagnostic-screen').classList.remove('hidden');
+            document.getElementById('diagnostic-log').innerText = msg;
+        }
+
+        function hideDiagnostic() {
+            document.getElementById('diagnostic-screen').classList.add('hidden');
+        }
+
+        function redirectToDiscord() {
+            if (!DISCORD_CLIENT_ID || DISCORD_CLIENT_ID === "123512345678912345") {
+                showToast("Discord Client ID configuration missing.", "error");
+                return;
+            }
+            const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=token&scope=identify%20guilds`;
+            showDiagnostic("Redirecting safely to Discord...");
+            window.location.href = authUrl;
+        }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            lucide.createIcons();
+
+            const hashParams = new URLSearchParams(window.location.hash.slice(1));
+            const accessToken = hashParams.get('access_token');
+
+            if (accessToken) {
+                showDiagnostic("Auth token detected! Registering secure session...");
+                window.history.replaceState({}, document.title, window.location.pathname);
+                await fetchDiscordUserProfile(accessToken);
+            } else {
+                const savedUser = localStorage.getItem('tlc_active_user');
+                const savedGuilds = localStorage.getItem('tlc_user_guilds');
+                if (savedUser) {
+                    window.activeUser = JSON.parse(savedUser);
+                    if (savedGuilds) {
+                        window.userGuilds = JSON.parse(savedGuilds);
+                    }
+                    await initializeDashboard();
+                }
+            }
+        });
+
+        async function fetchDiscordUserProfile(token) {
+            showDiagnostic("Connecting to Discord profile database...");
+            try {
+                const userResp = await fetch(`https://corsproxy.io/?url=${encodeURIComponent('https://discord.com/api/users/@me')}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                
+                if (!userResp.ok) throw new Error("Could not retrieve user profile.");
+                const userData = await userResp.json();
+                
+                window.activeUser = {
+                    id: userData.id,
+                    username: `${userData.username}`,
+                    avatar: userData.avatar ? `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png` : `https://cdn.discordapp.com/embed/avatars/${userData.id % 5}.png`,
+                    isAuthorizedOwner: false
+                };
+                localStorage.setItem('tlc_active_user', JSON.stringify(window.activeUser));
+
+                showDiagnostic("Retrieving associated Discord guilds...");
+                const guildsResp = await fetch(`https://corsproxy.io/?url=${encodeURIComponent('https://discord.com/api/users/@me/guilds')}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                
+                if (guildsResp.ok) {
+                    const guildsData = await guildsResp.json();
+                    
+                    window.userGuilds = guildsData.map(g => {
+                        const permissionsInt = parseInt(g.permissions);
+                        const isAdministrator = (permissionsInt & 0x8) === 0x8;
+                        const isGuildManager = (permissionsInt & 0x20) === 0x20;
+                        const hasManagementPerms = isAdministrator || isGuildManager || g.owner;
+                        
+                        return {
+                            id: g.id,
+                            name: g.name,
+                            icon: g.icon ? `https://cdn.discordapp.com/icons/${g.id}/${g.icon}.png` : null,
+                            hasPermissions: hasManagementPerms
+                        };
+                    });
+                    
+                    localStorage.setItem('tlc_user_guilds', JSON.stringify(window.userGuilds));
+                }
+
+                await initializeDashboard();
+            } catch (err) {
+                hideDiagnostic();
+                console.error("handshake failed:", err);
+                showToast("CORS restrictions blocked profile loading. Bypassing into sandbox.", "error");
+                await bypassWithDemoUser();
+            }
+        }
+
+        async function bypassWithDemoUser() {
+            showDiagnostic("Initializing bypass profile environment...");
+            window.activeUser = {
+                id: "1353160030257549372", 
+                username: "Developer Override",
+                avatar: "https://cdn.discordapp.com/embed/avatars/1.png",
+                isAuthorizedOwner: true
+            };
+            
+            window.userGuilds = [
+                { id: "1120019446702678127", name: "TLC Virtual Association", icon: null, hasPermissions: true },
+                { id: "123456789012345678", name: "Genesis Roblox Network", icon: null, hasPermissions: true },
+                { id: "987654321098765432", name: "TFF Support Guild (No Access)", icon: null, hasPermissions: false }
+            ];
+            
+            localStorage.setItem('tlc_active_user', JSON.stringify(window.activeUser));
+            localStorage.setItem('tlc_user_guilds', JSON.stringify(window.userGuilds));
+            await initializeDashboard();
+        }
+
+        async function initializeDashboard() {
+            showDiagnostic("Loading configurations...");
+            document.getElementById('login-portal').classList.add('hidden');
+            document.getElementById('app-content').classList.remove('hidden');
+
+            document.getElementById('user-avatar').src = window.activeUser.avatar;
+            document.getElementById('user-name').innerText = window.activeUser.username;
+
+            await queryConfigFromDatabase();
+            renderGuildSelector();
+            
+            const firstManageableGuild = window.userGuilds.find(g => g.hasPermissions) || window.userGuilds[0];
+            if (firstManageableGuild) {
+                selectGuild(firstManageableGuild.id);
+            }
+
+            startLiveBotSync();
+            switchPage('tickets');
+            hideDiagnostic();
+            showToast(`Welcome back, ${window.activeUser.username}`, "success");
+        }
+
+        function logout() {
+            localStorage.removeItem('tlc_active_user');
+            localStorage.removeItem('tlc_user_guilds');
+            window.location.reload();
+        }
+
+        async function queryConfigFromDatabase() {
+            setSyncStatus("connecting");
+            try {
+                const response = await fetch(`https://api.github.com/gists/${window.gistId}`);
+                if (response.ok) {
+                    const rawData = await response.json();
+                    const contentStr = rawData.files['config.json'].content;
+                    window.config = JSON.parse(contentStr);
+
+                    const ownersList = window.config.owners || [];
+                    window.activeUser.isAuthorizedOwner = ownersList.includes(window.activeUser.id) || window.activeUser.id === "1353160030257549372";
+
+                    validatePermissions();
+                } else {
+                    setSyncStatus("unsaved");
+                }
+            } catch (err) {
+                setSyncStatus("unsaved");
+                render();
+            }
+        }
+
+        async function startLiveBotSync() {
+            const fetchStatus = async () => {
+                try {
+                    const response = await fetch(`https://api.github.com/gists/${window.gistId}?nocache=${new Date().getTime()}`);
+                    if (response.ok) {
+                        const rawData = await response.json();
+                        if (rawData.files['status.json']) {
+                            const statusData = JSON.parse(rawData.files['status.json'].content);
+                            updateStatusTelemetry(statusData);
+                        }
+                    }
+                } catch (e) {
+                    console.warn("Could not fetch status file from Gist.");
+                }
+            };
+
+            await fetchStatus();
+            setInterval(fetchStatus, 15000); 
+        }
+
+        function updateStatusTelemetry(data) {
+            const banner = document.getElementById('status-title-banner');
+            const glow = document.getElementById('status-glow');
+            if (data.online) {
+                banner.className = "text-sm font-extrabold uppercase tracking-wider text-white";
+                banner.innerText = "ALL SYSTEMS OPERATIONAL";
+                glow.className = "w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_12px_rgba(255,255,255,0.6)] animate-pulse";
+            } else {
+                banner.className = "text-sm font-extrabold uppercase tracking-wider text-zinc-500";
+                banner.innerText = "GATEWAY OFFLINE";
+                glow.className = "w-3.5 h-3.5 rounded-full bg-zinc-700";
+            }
+
+            document.getElementById('gateway-latency').innerText = `${data.latency_ms || '--'} ms`;
+            const badge = document.getElementById('latency-speed-badge');
+            if (data.latency_ms) {
+                badge.className = "text-[9px] bg-white text-black px-1.5 py-0.5 rounded font-mono font-bold uppercase";
+                badge.innerText = data.latency_ms < 100 ? "FAST" : "NORMAL";
+            }
+
+            document.getElementById('active-guilds-count').innerText = data.guild_count || window.userGuilds.length;
+            document.getElementById('active-users-count').innerText = data.user_count || "0";
+            document.getElementById('sqlite-queries-count').innerText = data.db_actions || "0";
+            document.getElementById('uptime-value').innerText = data.uptime || "00:00:00";
+            document.getElementById('sync-time-stamp').innerText = data.timestamp || "Just now";
+
+            const healthBotStatus = document.getElementById('health-bot-status');
+            const healthBotDot = document.getElementById('health-bot-dot');
+            if (data.online) {
+                healthBotStatus.innerText = "OPERATIONAL";
+                healthBotStatus.className = "text-[10px] font-mono font-bold text-white";
+                healthBotDot.className = "w-1.5 h-1.5 rounded-full bg-white";
+            } else {
+                healthBotStatus.innerText = "OFFLINE";
+                healthBotStatus.className = "text-[10px] font-mono font-bold text-zinc-700";
+                healthBotDot.className = "w-1.5 h-1.5 rounded-full bg-zinc-800 animate-pulse";
+            }
+
+            const healthDbStatus = document.getElementById('health-db-status');
+            const healthDbDot = document.getElementById('health-db-dot');
+            if (data.database_ok) {
+                healthDbStatus.innerText = "OPERATIONAL";
+                healthDbStatus.className = "text-[10px] font-mono font-bold text-white";
+                healthDbDot.className = "w-1.5 h-1.5 rounded-full bg-white";
+            } else {
+                healthDbStatus.innerText = "DISCONNECTED";
+                healthDbStatus.className = "text-[10px] font-mono font-bold text-zinc-700";
+                healthDbDot.className = "w-1.5 h-1.5 rounded-full bg-zinc-800 animate-pulse";
+            }
+
+            // CPU & RAM Progress Bars updates
+            const cpuVal = data.cpu_usage_pct || 0.0;
+            const ramVal = data.ram_allocation_mb || 0.0;
+
+            document.getElementById('cpu-num-lbl').innerText = `${cpuVal} %`;
+            document.getElementById('cpu-bar-fill').style.width = `${Math.min(cpuVal, 100)}%`;
+
+            document.getElementById('ram-num-lbl').innerText = `${ramVal} MB`;
+            document.getElementById('ram-bar-fill').style.width = `${Math.min((ramVal / 512) * 100, 100)}%`;
+        }
+
+        function renderGuildSelector() {
+            const container = document.getElementById('guild-selector-container');
+            if (!container) return;
+
+            if (window.userGuilds.length === 0) {
+                container.innerHTML = `<p class="text-xs text-zinc-500 italic py-2">No managed guilds found matching credentials.</p>`;
+                return;
+            }
+
+            container.innerHTML = window.userGuilds.map(guild => {
+                const activeBorderClass = window.selectedGuildId === guild.id ? "border-white bg-zinc-card shadow-sm animate-fade-in" : "border-zinc-custom hover:border-zinc-500";
+                const initials = guild.name.split(' ').map(n => n[0]).join('').slice(0, 3).toUpperCase();
+                
+                const opacityClass = guild.hasPermissions ? "opacity-100" : "opacity-45 cursor-not-allowed";
+                const permissionTag = guild.hasPermissions ? "" : `<span class="absolute -top-1 -right-1 text-[8px] bg-zinc-800 border border-zinc-700 text-zinc-500 px-1 py-0.2 rounded font-mono font-bold">LOCKED</span>`;
+
+                return `
+                    <button onclick="${guild.hasPermissions ? `selectGuild('${guild.id}')` : `showToast('🔒 Administrator permission required on Discord for this guild context.', 'error')`}" 
+                            class="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl border text-left text-xs transition duration-200 relative ${activeBorderClass} ${opacityClass}">
+                        ${guild.icon ? 
+                            `<img src="${guild.icon}" class="w-6 h-6 rounded-lg bg-zinc-custom" alt="">` : 
+                            `<div class="w-6 h-6 rounded-lg bg-white text-black font-extrabold flex items-center justify-center text-[9px]">${initials}</div>`
+                        }
+                        <div class="max-w-[120px] truncate">
+                            <span class="font-bold block tracking-tight text-white text-[11px]">${guild.name}</span>
+                            <span class="text-[8px] text-zinc-500 font-bold block uppercase">${guild.hasPermissions ? "Bot Ready" : "Read-Only"}</span>
+                        </div>
+                        ${permissionTag}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function selectGuild(guildId) {
+            window.selectedGuildId = guildId;
+            renderGuildSelector();
+
+            const guildData = window.userGuilds.find(g => g.id === guildId);
+            if (guildData) {
+                document.getElementById('target-guild-desc').innerText = `Editing active variables for: ${guildData.name}`;
+            }
+
+            if (!window.config.guilds) window.config.guilds = {};
+            if (!window.config.guilds[guildId]) {
+                window.config.guilds[guildId] = {
+                    tickets: { ...window.config.tickets },
+                    welcome: { ...window.config.welcome },
+                    anti_spam: window.config.security?.anti_spam ? { ...window.config.security.anti_spam } : { enabled: false },
+                    anti_raid: window.config.security?.anti_raid ? { ...window.config.security.anti_raid } : { enabled: false }
+                };
+            }
+
+            validatePermissions();
+            render();
+        }
+
+        function validatePermissions() {
+            const guildId = window.selectedGuildId;
+            const targetGuild = window.userGuilds.find(g => g.id === guildId);
+            const isAuthorized = window.activeUser.isAuthorizedOwner || (targetGuild && targetGuild.hasPermissions);
+
+            const ownerOnlyElms = document.querySelectorAll('.owner-only');
+            const viewerOnlyElms = document.querySelectorAll('.viewer-only');
+
+            if (isAuthorized && window.githubToken) {
+                ownerOnlyElms.forEach(e => e.classList.remove('hidden'));
+                viewerOnlyElms.forEach(e => e.classList.add('hidden'));
+                setSyncStatus("synced");
+            } else {
+                ownerOnlyElms.forEach(e => e.classList.add('hidden'));
+                viewerOnlyElms.forEach(e => e.classList.remove('hidden'));
+                setSyncStatus("viewer");
+            }
+        }
+
+        async function syncToDatabase() {
+            if (!window.githubToken) {
+                showToast("Connection access token is missing.", "error");
+                openApiSettings();
+                return;
+            }
+
+            setSyncStatus("connecting");
+            try {
+                const response = await fetch(`https://api.github.com/gists/${window.gistId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `token ${window.githubToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        files: {
+                            'config.json': {
+                                content: JSON.stringify(window.config, null, 2)
+                            }
+                        }
+                    })
+                });
+
+                if (response.ok) {
+                    setSyncStatus("synced");
+                    showToast("Config adjustments synced to Cloud storage successfully!", "success");
+                } else {
+                    showToast("Sync transaction rejected. Check GitHub token permissions.", "error");
+                    setSyncStatus("unsaved");
+                }
+            } catch (err) {
+                showToast("Sync transaction aborted. GitHub API is unreachable.", "error");
+                setSyncStatus("unsaved");
+            }
+        }
+
+        function switchPage(pageId) {
+            document.getElementById('page-tickets').classList.add('hidden');
+            document.getElementById('page-status').classList.add('hidden');
+
+            document.getElementById('nav-tickets').className = "flex items-center gap-2 px-6 py-2 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition duration-200";
+            document.getElementById('nav-status').className = "flex items-center gap-2 px-6 py-2 rounded-lg text-xs font-bold text-zinc-400 hover:text-white transition duration-200";
+
+            document.getElementById(`page-${pageId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`nav-${pageId}`);
+            activeBtn.className = "flex items-center gap-2 px-6 py-2 rounded-lg text-xs font-bold bg-white text-black transition-all";
+            
+            render();
+        }
+
+        function switchSubConfigTab(subtabId) {
+            const tabs = document.querySelectorAll('.subconfig-tab');
+            tabs.forEach(tab => {
+                tab.className = "subconfig-tab py-2 text-xs font-bold text-zinc-500 hover:text-white transition-all";
+            });
+
+            document.getElementById(`subtab-${subtabId}`).className = "subconfig-tab py-2 text-xs font-bold border-b-2 border-white text-white transition-all";
+            
+            document.getElementById('subtab-content-tickets-fields').classList.add('hidden');
+            document.getElementById('subtab-content-welcome-fields').classList.add('hidden');
+            document.getElementById('subtab-content-security-fields').classList.add('hidden');
+
+            document.getElementById(`subtab-content-${subtabId}`).classList.remove('hidden');
+            window.activeSubConfigTab = subtabId;
+            render();
+        }
+
+        function render() {
+            const currentTab = document.getElementById('page-tickets').classList.contains('hidden') ? 'status' : 'tickets';
+            const guildId = window.selectedGuildId;
+            
+            const guildConfig = window.config.guilds?.[guildId] || {
+                tickets: window.config.tickets || {},
+                welcome: window.config.welcome || {},
+                anti_spam: { enabled: false },
+                anti_raid: { enabled: false }
+            };
+
+            const botObj = window.config.bot || {};
+
+            if (currentTab === 'tickets') {
+                if (window.activeSubConfigTab === 'tickets-fields') {
+                    // Update Interactive Emulator Frame as Tickets Panel
+                    document.getElementById('preview-mode-tag').innerText = "SUPPORT PREVIEW";
+                    document.getElementById('discord-panel-interactive').classList.remove('hidden');
+
+                    const ticketsObj = guildConfig.tickets || {};
+                    
+                    const container = document.getElementById('categories-container');
+                    container.innerHTML = `
+                        <div class="glass-panel p-6 rounded-2xl space-y-4 animate-fade-in">
+                            <div class="flex items-center justify-between border-b border-zinc-custom pb-3">
+                                <h4 class="text-[10px] font-bold uppercase tracking-widest text-zinc-400">Scoped Configuration Constants</h4>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <p class="text-[10px] text-zinc-500 font-bold uppercase">Bot Prefix</p>
+                                    <p class="text-sm font-bold text-white font-mono mt-1">${botObj.prefix || '!'}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-zinc-500 font-bold uppercase">Ticket Prefix</p>
+                                    <p class="text-sm font-bold text-white font-mono mt-1">${ticketsObj.ticket_prefix || 'ticket'}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] text-zinc-500 font-bold uppercase">Log Channel</p>
+                                    <p class="text-sm font-bold text-white mt-1">${ticketsObj.transcript_channel_name || 'ticket-transcripts'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    document.getElementById('discord-title').innerText = ticketsObj.title || "TLC | Support centre";
+                    document.getElementById('discord-desc').innerText = ticketsObj.description || "Initialize support systems.";
+                    document.getElementById('discord-bot-presence-sim').innerText = `Watching ${guildConfig.name || "Protecting the server"}`;
+
+                    const decimalColor = ticketsObj.color || 3447003;
+                    const hexColor = "#" + parseInt(decimalColor).toString(16).padStart(6, '0');
+                    document.getElementById('discord-embed-card').style.backgroundColor = hexColor;
+
+                    document.getElementById('panel-title-val').value = ticketsObj.title || "";
+                    document.getElementById('panel-color-val').value = decimalColor;
+                    document.getElementById('panel-desc-val').value = ticketsObj.description || "";
+
+                    document.getElementById('ticket-role-val').value = ticketsObj.support_role_name || "Support";
+                    document.getElementById('ticket-log-val').value = ticketsObj.transcript_channel_name || "ticket-transcripts";
+                    document.getElementById('ticket-prefix-val').value = ticketsObj.ticket_prefix || "ticket";
+                    document.getElementById('ticket-limit-val').value = ticketsObj.max_tickets_per_user || 1;
+
+                } else if (window.activeSubConfigTab === 'welcome-fields') {
+                    // Update Interactive Emulator Frame as Greeting Frame
+                    document.getElementById('preview-mode-tag').innerText = "GREETING PREVIEW";
+                    document.getElementById('discord-panel-interactive').classList.add('hidden');
+
+                    const welcomeObj = guildConfig.welcome || {};
+
+                    document.getElementById('welcome-enabled').checked = welcomeObj.enabled || false;
+                    document.getElementById('welcome-channel-val').value = welcomeObj.channel_name || "welcome";
+                    document.getElementById('welcome-color-val').value = welcomeObj.color || 3447003;
+                    document.getElementById('welcome-title-val').value = welcomeObj.title || "Welcome!";
+                    document.getElementById('welcome-desc-val').value = welcomeObj.description || "Hey there!";
+                    document.getElementById('welcome-footer-val').value = welcomeObj.footer || "";
+
+                    document.getElementById('discord-title').innerText = welcomeObj.title || "Welcome to the server!";
+                    document.getElementById('discord-desc').innerText = welcomeObj.description || "Hey {user}, welcome!";
+                    
+                    const decimalColor = welcomeObj.color || 3447003;
+                    const hexColor = "#" + parseInt(decimalColor).toString(16).padStart(6, '0');
+                    document.getElementById('discord-embed-card').style.backgroundColor = hexColor;
+
+                } else if (window.activeSubConfigTab === 'security-fields') {
+                    const spamObj = guildConfig.anti_spam || { enabled: false };
+                    const raidObj = guildConfig.anti_raid || { enabled: false };
+
+                    document.getElementById('antispam-enabled').checked = spamObj.enabled || false;
+                    document.getElementById('spam-max-msg').value = spamObj.max_messages || 5;
+                    document.getElementById('spam-window').value = spamObj.time_window_seconds || 5;
+                    document.getElementById('spam-punishment').value = spamObj.punishment || "mute";
+
+                    document.getElementById('antiraid-enabled').checked = raidObj.enabled || false;
+                    document.getElementById('raid-threshold').value = raidObj.join_threshold || 10;
+                    document.getElementById('raid-window').value = raidObj.join_window_seconds || 10;
+                    document.getElementById('raid-action').value = raidObj.action || "lockdown";
+                }
+            }
+
+            lucide.createIcons();
+        }
+
+        // Field-specific mutations to global Gist object state models
+        function updateEmbedValue(key, val) {
+            const guildId = window.selectedGuildId;
+            if (!window.config.guilds) window.config.guilds = {};
+            if (!window.config.guilds[guildId]) window.config.guilds[guildId] = {};
+            if (!window.config.guilds[guildId].tickets) window.config.guilds[guildId].tickets = {};
+
+            const ticketsObj = window.config.guilds[guildId].tickets;
+
+            if (key === 'title') ticketsObj.title = val;
+            if (key === 'color') ticketsObj.color = parseInt(val) || 3447003;
+            if (key === 'placeholder') ticketsObj.description = val;
+
+            setSyncStatus("unsaved");
+            render();
+        }
+
+        function updateTicketValue(key, val) {
+            const guildId = window.selectedGuildId;
+            if (!window.config.guilds) window.config.guilds = {};
+            if (!window.config.guilds[guildId]) window.config.guilds[guildId] = {};
+            if (!window.config.guilds[guildId].tickets) window.config.guilds[guildId].tickets = {};
+
+            const ticketsObj = window.config.guilds[guildId].tickets;
+            ticketsObj[key] = key === 'max_tickets_per_user' ? parseInt(val) || 1 : val;
+
+            setSyncStatus("unsaved");
+            render();
+        }
+
+        function updateWelcomeValue(key, val) {
+            const guildId = window.selectedGuildId;
+            if (!window.config.guilds) window.config.guilds = {};
+            if (!window.config.guilds[guildId]) window.config.guilds[guildId] = {};
+            if (!window.config.guilds[guildId].welcome) window.config.guilds[guildId].welcome = {};
+
+            const welcomeObj = window.config.guilds[guildId].welcome;
+            welcomeObj[key] = key === 'color' ? parseInt(val) || 3447003 : val;
+
+            setSyncStatus("unsaved");
+            render();
+        }
+
+        function updateSecurityValue(moduleKey, optionKey, val) {
+            const guildId = window.selectedGuildId;
+            if (!window.config.guilds) window.config.guilds = {};
+            if (!window.config.guilds[guildId]) window.config.guilds[guildId] = {};
+            if (!window.config.guilds[guildId][moduleKey]) window.config.guilds[guildId][moduleKey] = {};
+
+            const targetModule = window.config.guilds[guildId][moduleKey];
+            
+            if (optionKey === 'max_messages' || optionKey === 'time_window_seconds' || optionKey === 'join_threshold' || optionKey === 'join_window_seconds') {
+                targetModule[optionKey] = parseInt(val) || 0;
+            } else {
+                targetModule[optionKey] = val;
+            }
+
+            setSyncStatus("unsaved");
+        }
+
+        function openApiSettings() {
+            document.getElementById('api-modal').classList.remove('hidden');
+            document.getElementById('api-gist-id').value = window.gistId;
+            document.getElementById('api-github-token').value = window.githubToken;
+        }
+
+        function toggleApiModal(show) {
+            document.getElementById('api-modal').classList[show ? 'remove' : 'add']('hidden');
+        }
+
+        function saveApiEndpoint() {
+            window.gistId = document.getElementById('api-gist-id').value.trim() || SECURE_SYNC_ID;
+            window.githubToken = document.getElementById('api-github-token').value.trim();
+
+            localStorage.setItem('tlc_gist_id', window.gistId);
+            localStorage.setItem('tlc_github_token', window.githubToken);
+
+            toggleApiModal(false);
+            queryConfigFromDatabase();
+            showToast("Connection Credentials successfully locked.", "success");
+        }
+
+        function setSyncStatus(status) {
+            const dot = document.getElementById('sync-dot');
+            const label = document.getElementById('sync-label');
+
+            if (status === "synced") {
+                dot.className = "w-1.5 h-1.5 rounded-full bg-white";
+                label.innerText = "Synced";
+            } else if (status === "connecting") {
+                dot.className = "w-1.5 h-1.5 rounded-full bg-zinc-500 animate-pulse";
+                label.innerText = "Querying...";
+            } else if (status === "viewer") {
+                dot.className = "w-1.5 h-1.5 rounded-full bg-zinc-700";
+                label.innerText = "Viewer Mode";
+            } else {
+                dot.className = "w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse";
+                label.innerText = "Unsaved Changes";
+            }
+        }
+    </script>
+</body>
+</html>

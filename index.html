@@ -65,7 +65,7 @@
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col selection:bg-white selection:text-black antialiased">
+<body class="min-h-screen flex flex-col selection:bg-emerald-500 selection:text-black antialiased">
 
     <!-- GLOBAL TOAST NOTIFICATIONS -->
     <div id="toast-container" class="fixed top-6 right-6 z-50 flex flex-col gap-3 max-w-sm w-full"></div>
@@ -82,7 +82,7 @@
             
             <!-- Dynamic Bypass Action (Hides if loading succeeds, shows if slow/fails) -->
             <div id="loader-fallback-actions" class="pt-4 transition-all duration-300 opacity-0 pointer-events-none">
-                <button onclick="bypassLoader()" class="px-5 py-2.5 bg-white text-black text-[10px] font-extrabold uppercase tracking-widest rounded-lg hover:bg-zinc-200 transition">
+                <button onclick="bypassLoader()" class="px-5 py-2.5 bg-white text-black text-[10px] font-extrabold uppercase tracking-widest rounded-lg hover:bg-zinc-200 transition shadow-lg">
                     Skip & Load Offline Workspace
                 </button>
             </div>
@@ -337,7 +337,6 @@
                                     <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
                                 </div>
                             </div>
-                            <!-- Direct manual text inputs fallback shown dynamically -->
                             <input type="text" id="fallback-support-role" oninput="assignCategoryRole(this.value)" placeholder="Enter Role ID or Name manually" class="hidden w-full input-dark p-3 rounded-xl text-xs outline-none focus:border-white">
                         </div>
 
@@ -485,7 +484,7 @@
         // ==========================================
         //  TLC CONSOLE - MASTER CONFLICT RESOLVED BLOCK
         // ==========================================
-        const DISCORD_CLIENT_ID = "1502615513652789288"; 
+        const DISCORD_CLIENT_ID = "1120019446702678127"; 
         const SECURE_SYNC_ID    = "73e83496d6c61e5673dbe3b539b9edc1"; 
         // ==========================================
 
@@ -677,7 +676,6 @@
                     window.activeUser.isAuthorizedOwner = ownersList.includes(window.activeUser.id) || window.activeUser.id === "1353160030257549372";
                     validatePermissions();
                     
-                    // Hide loader overlay if it is still running
                     document.getElementById('telemetry-loader').classList.add('hidden');
                     clearTimeout(loaderTimeout);
                 } else {
@@ -792,7 +790,7 @@
                 const initials = guild.name.split(' ').map(n => n[0]).join('').slice(0, 3).toUpperCase();
                 
                 return `
-                    <button onclick="${guild.hasPermissions ? `selectGuild('${guild.id}')` : `showToast('🔒 High control privileges required for target server.', false)`}" 
+                    <button onclick="${guild.hasPermissions ? `selectGuild('${guild.id}')` : `showToast('🔒 High privileges required for target server.', false)`}" 
                             class="flex-shrink-0 flex items-center gap-2 px-3 py-2 rounded-xl border text-left text-xs transition relative ${activeBorderClass}">
                         ${guild.icon ? 
                             `<img src="${guild.icon}" class="w-6 h-6 rounded-lg bg-zinc-700" alt="">` : 
@@ -860,7 +858,6 @@
             const deploySelect = document.getElementById('dropdown-deploy-channel');
             const transSelect = document.getElementById('dropdown-transcript-channel');
 
-            // Elements for Direct Text Input Fallbacks
             const wrapRoles = document.getElementById('wrapper-support-roles');
             const wrapParent = document.getElementById('wrapper-parent-channels');
             const wrapDeploy = document.getElementById('wrapper-deploy-channel');
